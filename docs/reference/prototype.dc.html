@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Planer ogrodu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2F6B3F}a:hover{color:#1E4A2A}
+.stage{background-color:#FFFFFF;background-image:linear-gradient(to right, rgba(30,42,35,0.20) 1px, transparent 1px),linear-gradient(to bottom, rgba(30,42,35,0.20) 1px, transparent 1px),linear-gradient(to right, rgba(30,42,35,0.07) 1px, transparent 1px),linear-gradient(to bottom, rgba(30,42,35,0.07) 1px, transparent 1px)}
+button{font-family:inherit;cursor:pointer}
+button:disabled{opacity:0.45;cursor:not-allowed}
+input{font-family:'IBM Plex Mono', ui-monospace, monospace}
+input:focus,button:focus-visible{outline:2px solid #2F6B3F;outline-offset:1px}
+.vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;opacity:0}
+.filebtn:focus-within{outline:2px solid #2F6B3F;outline-offset:1px}
+.filebtn:hover{background:#F2F5F1}
+input[type=range]{accent-color:#2F6B3F}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #EEF1EC; color: #1E2A23; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; background: #FFFFFF; border-bottom: 1px solid #D9DED9">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2F6B3F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20c0-8 6-14 16-16-1 10-7 16-15 16"></path><path d="M4 20l9-9"></path></svg>
+      <div>
+        <h1 style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em">Planer ogrodu</h1>
+        <p style="margin: 0; font-size: 13px; color: #56615B">Rysuj w metrach: granice działki, budynki, nawierzchnie i rośliny</p>
+      </div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+      <button onClick="{{undo}}" disabled="{{noUndo}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 14px">Cofnij</button>
+      <span style="width: 1px; height: 28px; background: #D9DED9"></span>
+      <label class="filebtn" style="position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 14px; cursor: pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E2A23" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        Otwórz plik
+        <input type="file" accept=".json,application/json" onChange="{{onOpenFile}}" class="vh">
+      </label>
+      <button onClick="{{saveFile}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 14px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E2A23" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"></path><path d="M7 10l5 5 5-5"></path><path d="M5 20h14"></path></svg>
+        Zapisz plik
+      </button>
+      <button onClick="{{exportPng}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 14px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E2A23" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 16l5-5 4 4 3-3 6 6"></path></svg>
+        Eksport PNG
+      </button>
+      <span style="width: 1px; height: 28px; background: #D9DED9"></span>
+      <button onClick="{{loadSample}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 14px">Przykładowy plan</button>
+      <button onClick="{{clearAll}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #2F6B3F; border-radius: 8px; background: #2F6B3F; color: #FFFFFF; font-size: 14px; font-weight: 500">Nowy plan</button>
+    </div>
+  </header>
+
+  <sc-if value="{{noticeOn}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 16px 0; padding: 10px 14px; border: 1px solid #B9D3BF; border-radius: 10px; background: #E9F3EB; font-size: 14px; color: #1E2A23">
+      <span style="flex: 1 1 260px">{{msg}}</span>
+      <sc-if value="{{dlOn}}" hint-placeholder-val="{{ false }}">
+        <a id="dl-link" href="{{dlUrl}}" download="{{dlName}}" style="display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 8px; background: #2F6B3F; color: #FFFFFF; font-weight: 500; text-decoration: none">Pobierz {{dlName}}</a>
+      </sc-if>
+      <button onClick="{{closeNotice}}" aria-label="Zamknij komunikat" style="width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: #1E2A23; font-size: 20px">×</button>
+    </div>
+  </sc-if>
+
+  <main style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; padding: 16px">
+
+    <aside style="flex: 1 1 240px; max-width: 100%; display: flex; flex-direction: column; gap: 12px">
+      <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+        <h2 style="margin: 0 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Narzędzia</h2>
+        <button onClick="{{selectTool.pick}}" aria-pressed="{{selectTool.pressed}}" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: 1px solid {{selectTool.bd}}; border-radius: 8px; background: {{selectTool.bg}}; color: #1E2A23; font-size: 14px; font-weight: {{selectTool.fw}}; text-align: left">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E2A23" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 8-6 2-2 6z"></path></svg>
+          Zaznacz i przesuń
+        </button>
+        <h3 style="margin: 8px 0 2px; font-size: 12px; font-weight: 500; color: #56615B">Obszary</h3>
+        <sc-for list="{{areaTools}}" as="t" hint-placeholder-count="6">
+          <button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: 1px solid {{t.bd}}; border-radius: 8px; background: {{t.bg}}; color: #1E2A23; font-size: 14px; font-weight: {{t.fw}}; text-align: left">
+            <svg width="22" height="22" viewBox="0 0 1 1" aria-hidden="true"><rect x="0.05" y="0.05" width="0.9" height="0.9" rx="{{t.rx}}" fill="{{t.fill}}" stroke="{{t.stroke}}" stroke-width="1.5" stroke-dasharray="{{t.dash}}" vector-effect="non-scaling-stroke"></rect></svg>
+            {{t.label}}
+          </button>
+        </sc-for>
+        <h3 style="margin: 8px 0 2px; font-size: 12px; font-weight: 500; color: #56615B">Rośliny</h3>
+        <sc-for list="{{plantTools}}" as="t" hint-placeholder-count="3">
+          <button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: 1px solid {{t.bd}}; border-radius: 8px; background: {{t.bg}}; color: #1E2A23; font-size: 14px; font-weight: {{t.fw}}; text-align: left">
+            <svg width="22" height="22" viewBox="0 0 1 1" aria-hidden="true"><rect x="0.05" y="0.05" width="0.9" height="0.9" rx="{{t.rx}}" fill="{{t.fill}}" stroke="{{t.stroke}}" stroke-width="1.5" vector-effect="non-scaling-stroke"></rect></svg>
+            {{t.label}}
+          </button>
+        </sc-for>
+      </section>
+
+      <sc-if value="{{isPolyTool}}" hint-placeholder-val="{{ false }}">
+        <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+          <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Rysowanie: {{toolLabel}}</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+            <button onClick="{{modePolyPick}}" style="min-height: 40px; border: 1px solid {{modePolyBd}}; border-radius: 8px; background: {{modePolyBg}}; color: #1E2A23; font-size: 13px">Wielokąt</button>
+            <button onClick="{{modeRectPick}}" style="min-height: 40px; border: 1px solid {{modeRectBd}}; border-radius: 8px; background: {{modeRectBg}}; color: #1E2A23; font-size: 13px">Prostokąt</button>
+          </div>
+
+          <sc-if value="{{modePoly}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #3D4842">Klikaj kolejne narożniki. Zamknij kształt klikając pierwszy punkt, dwuklikiem albo przyciskiem.</p>
+              <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #1F5FBF">{{draftInfo}}</p>
+              <sc-if value="{{draftEmpty}}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+                    <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Start X (m)<input value="{{startX}}" onChange="{{onStartX}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                    <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Start Y (m)<input value="{{startY}}" onChange="{{onStartY}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                  </div>
+                  <button onClick="{{addStart}}" style="min-height: 40px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">Ustaw punkt startowy</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{draftHas}}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+                    <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Długość (m)<input value="{{segLen}}" onChange="{{onSegLen}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                    <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Kąt (°)<input value="{{segAng}}" onChange="{{onSegAng}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                  </div>
+                  <p style="margin: 0; font-size: 11px; color: #56615B">0° w prawo, 90° w górę, 180° w lewo, 270° w dół</p>
+                  <button onClick="{{addSegment}}" style="min-height: 40px; border: 1px solid #1F5FBF; border-radius: 8px; background: #FFFFFF; color: #1F5FBF; font-size: 13px; font-weight: 500">Dodaj odcinek</button>
+                </div>
+              </sc-if>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                <button onClick="{{finishDraft}}" disabled="{{cantFinish}}" style="flex: 1 1 auto; min-height: 40px; padding: 0 10px; border: 1px solid #2F6B3F; border-radius: 8px; background: #2F6B3F; color: #FFFFFF; font-size: 13px">Zamknij kształt</button>
+                <button onClick="{{popPoint}}" disabled="{{draftEmpty}}" style="flex: 1 1 auto; min-height: 40px; padding: 0 10px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">Cofnij punkt</button>
+                <button onClick="{{cancelDraft}}" disabled="{{draftEmpty}}" style="flex: 1 1 auto; min-height: 40px; padding: 0 10px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">Anuluj</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{modeRect}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #3D4842">Przeciągnij na planie albo wpisz wymiary i wstaw dokładnie.</p>
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">X (m)<input value="{{startX}}" onChange="{{onStartX}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Y (m)<input value="{{startY}}" onChange="{{onStartY}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Szerokość (m)<input value="{{rectW}}" onChange="{{onRectW}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Głębokość (m)<input value="{{rectH}}" onChange="{{onRectH}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+              </div>
+              <button onClick="{{insertRect}}" style="min-height: 40px; border: 1px solid #2F6B3F; border-radius: 8px; background: #2F6B3F; color: #FFFFFF; font-size: 13px; font-weight: 500">Wstaw prostokąt</button>
+            </div>
+          </sc-if>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{isPointTool}}" hint-placeholder-val="{{ false }}">
+        <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px">
+          <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Sadzenie: {{toolLabel}}</h2>
+          <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #3D4842">Klikaj na planie, aby posadzić. Średnicę korony i dokładną pozycję ustawisz po zaznaczeniu.</p>
+        </section>
+      </sc-if>
+
+      <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Podkład: mapka działki</h2>
+        <sc-if value="{{noBg}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #3D4842">Wczytaj mapkę geodezyjną, zdjęcie lub widok z geoportalu i obrysuj na niej granice i dom.</p>
+            <label class="filebtn" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; box-sizing: border-box; border: 1px solid #2F6B3F; border-radius: 8px; background: #FFFFFF; color: #2F6B3F; font-size: 14px; font-weight: 500; cursor: pointer">
+              Wczytaj mapkę (JPG, PNG)
+              <input type="file" accept="image/*" onChange="{{onBgFile}}" class="vh">
+            </label>
+            <p style="margin: 0; font-size: 11px; line-height: 1.4; color: #56615B">Masz PDF? Zrób zrzut ekranu albo zapisz stronę jako obraz.</p>
+          </div>
+        </sc-if>
+        <sc-if value="{{hasBg}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+              <button onClick="{{startCalib}}" aria-pressed="{{calibPressed}}" style="min-height: 40px; border: 1px solid {{calibBd}}; border-radius: 8px; background: {{calibBg}}; color: #1E2A23; font-size: 13px">Kalibruj skalę</button>
+              <button onClick="{{toggleMove}}" aria-pressed="{{movePressed}}" style="min-height: 40px; border: 1px solid {{moveBd}}; border-radius: 8px; background: {{moveBg}}; color: #1E2A23; font-size: 13px">Przesuń mapkę</button>
+            </div>
+            <sc-if value="{{calibActive}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 8px; background: #F3EEF8">
+                <p style="margin: 0; font-size: 13px; line-height: 1.45; color: #3D2A52">Kliknij na mapce dwa punkty, których odległość znasz (np. końce boku działki z opisanym wymiarem). Przybliż plan dla większej dokładności.</p>
+                <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6A3A9C">{{calibInfo}}</p>
+                <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #4A3A5C">Rzeczywista odległość (m)<input value="{{calibLen}}" onChange="{{onCalibLen}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9BFD6; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+                  <button onClick="{{applyCalib}}" disabled="{{cantCalib}}" style="min-height: 40px; border: 1px solid #6A3A9C; border-radius: 8px; background: #6A3A9C; color: #FFFFFF; font-size: 13px; font-weight: 500">Zastosuj skalę</button>
+                  <button onClick="{{cancelBgMode}}" style="min-height: 40px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">Zakończ</button>
+                </div>
+              </div>
+            </sc-if>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Widoczność mapki: {{bgOpPct}}%<input type="range" min="10" max="100" step="5" value="{{bgOpPct}}" onChange="{{onBgOp}}" style="width: 100%; height: 28px"></label>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Szer. (m)<input value="{{bgWVal}}" onChange="{{onBgW}}" onBlur="{{blurBgW}}" inputmode="decimal" style="height: 36px; box-sizing: border-box; width: 100%; padding: 0 6px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 12px; color: #1E2A23"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">X (m)<input value="{{bgXVal}}" onChange="{{onBgX}}" onBlur="{{blurBgX}}" inputmode="decimal" style="height: 36px; box-sizing: border-box; width: 100%; padding: 0 6px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 12px; color: #1E2A23"></label>
+              <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Y (m)<input value="{{bgYVal}}" onChange="{{onBgY}}" onBlur="{{blurBgY}}" inputmode="decimal" style="height: 36px; box-sizing: border-box; width: 100%; padding: 0 6px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 12px; color: #1E2A23"></label>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <button onClick="{{toggleBgVis}}" style="flex: 1 1 auto; min-height: 40px; padding: 0 10px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">{{bgVisLabel}}</button>
+              <label class="filebtn" style="position: relative; flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; box-sizing: border-box; padding: 0 10px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px; cursor: pointer">Zmień<input type="file" accept="image/*" onChange="{{onBgFile}}" class="vh"></label>
+              <button onClick="{{removeBg}}" style="flex: 1 1 auto; min-height: 40px; padding: 0 10px; border: 1px solid #8A3B24; border-radius: 8px; background: #FFFFFF; color: #8A3B24; font-size: 13px">Usuń</button>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Przyciąganie do siatki</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px">
+          <sc-for list="{{steps}}" as="p" hint-placeholder-count="4">
+            <button onClick="{{p.pick}}" aria-pressed="{{p.pressed}}" style="min-height: 40px; padding: 0; border: 1px solid {{p.bd}}; border-radius: 6px; background: {{p.bg}}; color: #1E2A23; font-size: 12px">{{p.label}}</button>
+          </sc-for>
+        </div>
+        <sc-for list="{{toggles}}" as="g" hint-placeholder-count="3">
+          <button onClick="{{g.toggle}}" aria-pressed="{{g.pressed}}" style="display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 4px; border: 0; background: transparent; color: #1E2A23; font-size: 13px; text-align: left">
+            <span style="width: 18px; height: 18px; box-sizing: border-box; border: 2px solid #2F6B3F; border-radius: 4px; background: {{g.box}}; flex: none"></span>
+            {{g.label}}
+          </button>
+        </sc-for>
+        <h2 style="margin: 6px 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Obszar rysunku</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Szerokość (m)<input value="{{plotW}}" onChange="{{onPlotW}}" onBlur="{{blurPlotW}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Głębokość (m)<input value="{{plotH}}" onChange="{{onPlotH}}" onBlur="{{blurPlotH}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+        </div>
+      </section>
+    </aside>
+
+    <section style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid #D9DED9">
+        <div style="display: flex; align-items: center; gap: 4px">
+          <button onClick="{{zoomOut}}" aria-label="Oddal" style="width: 40px; height: 40px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 18px">−</button>
+          <span style="min-width: 76px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3D4842">{{zoomLabel}}</span>
+          <button onClick="{{zoomIn}}" aria-label="Przybliż" style="width: 40px; height: 40px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 18px">+</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="width: {{barW}}px; height: 6px; border: 1.5px solid #1E2A23; border-top: 0; box-sizing: border-box"></div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #3D4842">{{barLabel}}</span>
+        </div>
+        <span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3D4842">{{coords}}</span>
+      </div>
+      <div style="height: 640px; overflow: auto; background: #E4E8E3">
+        <div style="padding: 34px 32px 32px 46px; width: max-content">
+          <div class="stage" aria-label="Plan ogrodu" onPointerDown="{{onDown}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onLeave}}" onDoubleClick="{{onDbl}}" style="position: relative; width: {{stageW}}px; height: {{stageH}}px; background-size: {{major}}px {{major}}px, {{major}}px {{major}}px, {{minor}}px {{minor}}px, {{minor}}px {{minor}}px; cursor: {{cursor}}; touch-action: none; user-select: none; box-shadow: 0 0 0 1px #B8C0B9">
+            <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+              <defs>
+                <pattern id="pGrass" patternUnits="userSpaceOnUse" width="0.5" height="0.5">
+                  <rect width="0.5" height="0.5" fill="#A8CF85"></rect>
+                  <path d="M0.08 0.32 l0.04 -0.12 M0.3 0.46 l0.04 -0.12 M0.36 0.18 l0.03 -0.11" stroke="#78A858" stroke-width="0.025" fill="none"></path>
+                </pattern>
+                <pattern id="pPave" patternUnits="userSpaceOnUse" width="0.4" height="0.2">
+                  <rect width="0.4" height="0.2" fill="#C7C1B6"></rect>
+                  <path d="M0 0 H0.4 M0 0.1 H0.4 M0.2 0 V0.1 M0.01 0.1 V0.2 M0.39 0.1 V0.2" stroke="#9A9387" stroke-width="0.012" fill="none"></path>
+                </pattern>
+                <pattern id="pGravel" patternUnits="userSpaceOnUse" width="0.3" height="0.3">
+                  <rect width="0.3" height="0.3" fill="#E3DDCF"></rect>
+                  <circle cx="0.06" cy="0.08" r="0.025" fill="#B5AA93"></circle>
+                  <circle cx="0.2" cy="0.05" r="0.018" fill="#A69B83"></circle>
+                  <circle cx="0.15" cy="0.2" r="0.028" fill="#BDB39D"></circle>
+                  <circle cx="0.26" cy="0.25" r="0.02" fill="#A69B83"></circle>
+                </pattern>
+                <pattern id="pBed" patternUnits="userSpaceOnUse" width="0.4" height="0.4">
+                  <rect width="0.4" height="0.4" fill="#8F6E50"></rect>
+                  <circle cx="0.1" cy="0.12" r="0.05" fill="#C45C8A"></circle>
+                  <circle cx="0.3" cy="0.3" r="0.05" fill="#E2B33C"></circle>
+                  <circle cx="0.3" cy="0.08" r="0.03" fill="#6E513A"></circle>
+                  <circle cx="0.08" cy="0.32" r="0.03" fill="#6E513A"></circle>
+                </pattern>
+                <pattern id="pHouse" patternUnits="userSpaceOnUse" width="0.5" height="0.5" patternTransform="rotate(45)">
+                  <rect width="0.5" height="0.5" fill="#ECE8E1"></rect>
+                  <path d="M0 0 V0.5" stroke="#CDC5B8" stroke-width="0.06"></path>
+                </pattern>
+              </defs>
+            </svg>
+
+            <sc-if value="{{bgOn}}" hint-placeholder-val="{{ false }}">
+              <img src="{{bgSrc}}" alt="" draggable="false" style="position: absolute; left: {{bgL}}px; top: {{bgT}}px; width: {{bgWpx}}px; height: {{bgHpx}}px; max-width: none; opacity: {{bgOp}}; pointer-events: none; user-select: none">
+            </sc-if>
+
+            <sc-for list="{{ticksX}}" as="k" hint-placeholder-count="6">
+              <span style="position: absolute; left: {{k.pos}}px; top: -22px; transform: translateX(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #56615B; pointer-events: none">{{k.label}}</span>
+            </sc-for>
+            <sc-for list="{{ticksY}}" as="k" hint-placeholder-count="4">
+              <span style="position: absolute; top: {{k.pos}}px; left: -40px; width: 34px; text-align: right; transform: translateY(-50%); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #56615B; pointer-events: none">{{k.label}}</span>
+            </sc-for>
+
+            <sc-for list="{{polys}}" as="s" hint-placeholder-count="0">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><polygon points="{{s.points}}" fill="{{s.fill}}" stroke="{{s.stroke}}" stroke-width="{{s.sw}}" stroke-dasharray="{{s.dash}}" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polygon></svg>
+            </sc-for>
+            <sc-for list="{{points}}" as="s" hint-placeholder-count="0">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><circle cx="{{s.cx}}" cy="{{s.cy}}" r="{{s.r}}" fill="{{s.fill}}" stroke="{{s.stroke}}" stroke-width="1.5" vector-effect="non-scaling-stroke"></circle><circle cx="{{s.cx}}" cy="{{s.cy}}" r="{{s.dotR}}" fill="{{s.stroke}}"></circle></svg>
+            </sc-for>
+            <sc-for list="{{bounds}}" as="s" hint-placeholder-count="0">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><polygon points="{{s.points}}" fill="none" stroke="{{s.stroke}}" stroke-width="{{s.sw}}" stroke-dasharray="{{s.dash}}" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polygon></svg>
+            </sc-for>
+
+            <sc-if value="{{selPolyOn}}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><polygon points="{{selPolyPts}}" fill="rgba(194,86,26,0.08)" stroke="#C2561A" stroke-width="2" vector-effect="non-scaling-stroke"></polygon></svg>
+            </sc-if>
+            <sc-if value="{{selPointOn}}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><circle cx="{{selC.cx}}" cy="{{selC.cy}}" r="{{selC.r}}" fill="none" stroke="#C2561A" stroke-width="2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"></circle></svg>
+            </sc-if>
+            <sc-if value="{{overlayOn}}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><polyline points="{{draftPts}}" fill="rgba(31,95,191,0.08)" stroke="#1F5FBF" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"></polyline><polygon points="{{rectPts}}" fill="rgba(31,95,191,0.10)" stroke="#1F5FBF" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"></polygon></svg>
+            </sc-if>
+
+            <sc-if value="{{calibOverlayOn}}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="{{vb}}" preserveAspectRatio="none" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none" aria-hidden="true"><polyline points="{{calibPts}}" fill="none" stroke="#6A3A9C" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"></polyline></svg>
+            </sc-if>
+
+            <sc-for list="{{labels}}" as="l" hint-placeholder-count="0">
+              <div style="position: absolute; left: {{l.x}}px; top: {{l.y}}px; transform: {{l.tf}}; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.88); text-align: center; white-space: nowrap; pointer-events: none; line-height: 1.25">
+                <div style="font-size: 12px; font-weight: 600; color: #1E2A23">{{l.title}}</div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #3D4842">{{l.sub}}</div>
+              </div>
+            </sc-for>
+            <sc-for list="{{edgeLabels}}" as="e" hint-placeholder-count="0">
+              <span style="position: absolute; left: {{e.x}}px; top: {{e.y}}px; transform: translate(-50%, -50%); padding: 1px 5px; border-radius: 3px; background: {{e.bg}}; color: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 11px; white-space: nowrap; pointer-events: none">{{e.text}}</span>
+            </sc-for>
+            <sc-for list="{{handles}}" as="h" hint-placeholder-count="0">
+              <span style="position: absolute; left: {{h.x}}px; top: {{h.y}}px; width: {{h.size}}px; height: {{h.size}}px; box-sizing: border-box; transform: translate(-50%, -50%); background: {{h.bg}}; border: 2px solid {{h.bd}}; border-radius: {{h.radius}}; pointer-events: none"></span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <p style="margin: 0; padding: 10px 12px; border-top: 1px solid #D9DED9; font-size: 13px; color: #3D4842">{{tip}}</p>
+    </section>
+
+    <aside style="flex: 1 1 280px; max-width: 100%; display: flex; flex-direction: column; gap: 12px">
+      <sc-if value="{{noSel}}" hint-placeholder-val="{{ true }}">
+        <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+          <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Podsumowanie</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+            <div style="padding: 10px; border-radius: 8px; background: #F2F5F1">
+              <div style="font-size: 12px; color: #56615B">Działka</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500">{{plotArea}}</div>
+            </div>
+            <div style="padding: 10px; border-radius: 8px; background: #F2F5F1">
+              <div style="font-size: 12px; color: #56615B">Biologicznie czynna</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500">{{pbc}}</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <sc-for list="{{summary}}" as="r" hint-placeholder-count="4">
+              <div style="display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid #E6EAE5; font-size: 13px">
+                <span>{{r.label}}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace">{{r.val}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin: 0; font-size: 12px; line-height: 1.45; color: #56615B">Powierzchnie liczone są tak, jak widać je na planie: to, co przykrywa dom albo kostka, nie wlicza się do trawnika.</p>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{selPolyOn}}" hint-placeholder-val="{{ false }}">
+        <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+            <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #C2561A">Zaznaczony obszar</h2>
+            <button onClick="{{deselect}}" style="min-height: 36px; padding: 0 10px; border: 1px solid #C9D0CA; border-radius: 6px; background: #FFFFFF; color: #1E2A23; font-size: 12px">Odznacz</button>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Nazwa<input value="{{inspName}}" onChange="{{onName}}" placeholder="{{inspType}}" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: #1E2A23"></label>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px">
+            <sc-for list="{{matOpts}}" as="o" hint-placeholder-count="6">
+              <button onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="min-height: 36px; padding: 0 10px; border: 1px solid {{o.bd}}; border-radius: 18px; background: {{o.bg}}; color: #1E2A23; font-size: 12px">{{o.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+            <div style="padding: 10px; border-radius: 8px; background: #F2F5F1">
+              <div style="font-size: 12px; color: #56615B">Powierzchnia</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 500">{{inspArea}}</div>
+            </div>
+            <div style="padding: 10px; border-radius: 8px; background: #F2F5F1">
+              <div style="font-size: 12px; color: #56615B">Obwód</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 500">{{inspPerim}}</div>
+            </div>
+          </div>
+          <sc-if value="{{inspReserveOn}}" hint-placeholder-val="{{ false }}">
+            <p style="margin: 0; font-size: 13px; color: #3D4842">Do zamówienia z zapasem 5%: <strong style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{inspReserve}}</strong></p>
+          </sc-if>
+          <div>
+            <h3 style="margin: 0 0 6px; font-size: 12px; font-weight: 500; color: #56615B">Wierzchołki (m) · przeciągnij na planie lub wpisz</h3>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <sc-for list="{{vertices}}" as="v" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr) 36px; gap: 4px; align-items: center">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #56615B">{{v.n}}</span>
+                  <input aria-label="{{v.xLabel}}" value="{{v.xVal}}" onFocus="{{pushHistFn}}" onChange="{{v.onX}}" onBlur="{{v.blurX}}" inputmode="decimal" style="height: 34px; box-sizing: border-box; width: 100%; padding: 0 6px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 12px; color: #1E2A23">
+                  <input aria-label="{{v.yLabel}}" value="{{v.yVal}}" onFocus="{{pushHistFn}}" onChange="{{v.onY}}" onBlur="{{v.blurY}}" inputmode="decimal" style="height: 34px; box-sizing: border-box; width: 100%; padding: 0 6px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 12px; color: #1E2A23">
+                  <button onClick="{{v.del}}" disabled="{{v.noDel}}" aria-label="{{v.delLabel}}" style="height: 34px; border: 1px solid #C9D0CA; border-radius: 6px; background: #FFFFFF; color: #8A3B24; font-size: 15px">×</button>
+                </div>
+              </sc-for>
+            </div>
+            <p style="margin: 6px 0 0; font-size: 11px; color: #56615B">Dwuklik na krawędzi dodaje nowy wierzchołek.</p>
+          </div>
+          <div>
+            <h3 style="margin: 0 0 6px; font-size: 12px; font-weight: 500; color: #56615B">Długości boków</h3>
+            <sc-for list="{{edges}}" as="d" hint-placeholder-count="4">
+              <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #EEF1EC; font-family: 'IBM Plex Mono', monospace; font-size: 12px">
+                <span style="color: #56615B">{{d.n}}</span><span>{{d.len}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+            <button onClick="{{duplicate}}" style="min-height: 40px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">Duplikuj</button>
+            <button onClick="{{remove}}" style="min-height: 40px; border: 1px solid #8A3B24; border-radius: 8px; background: #FFFFFF; color: #8A3B24; font-size: 13px">Usuń</button>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{selPointOn}}" hint-placeholder-val="{{ false }}">
+        <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+            <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #C2561A">Zaznaczona roślina</h2>
+            <button onClick="{{deselect}}" style="min-height: 36px; padding: 0 10px; border: 1px solid #C9D0CA; border-radius: 6px; background: #FFFFFF; color: #1E2A23; font-size: 12px">Odznacz</button>
+          </div>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Nazwa / gatunek<input value="{{inspName}}" onChange="{{onName}}" placeholder="{{inspType}}" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: #1E2A23"></label>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px">
+            <sc-for list="{{matOpts}}" as="o" hint-placeholder-count="3">
+              <button onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="min-height: 36px; padding: 0 10px; border: 1px solid {{o.bd}}; border-radius: 18px; background: {{o.bg}}; color: #1E2A23; font-size: 12px">{{o.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">X (m)<input value="{{ptX}}" onFocus="{{pushHistFn}}" onChange="{{onPtX}}" onBlur="{{blurPtX}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Y (m)<input value="{{ptY}}" onFocus="{{pushHistFn}}" onChange="{{onPtY}}" onBlur="{{blurPtY}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+            <label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #56615B">Korona Ø (m)<input value="{{ptD}}" onFocus="{{pushHistFn}}" onChange="{{onPtD}}" onBlur="{{blurPtD}}" inputmode="decimal" style="height: 38px; box-sizing: border-box; width: 100%; padding: 0 8px; border: 1px solid #C9D0CA; border-radius: 6px; font-size: 13px; color: #1E2A23"></label>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+            <button onClick="{{duplicate}}" style="min-height: 40px; border: 1px solid #C9D0CA; border-radius: 8px; background: #FFFFFF; color: #1E2A23; font-size: 13px">Duplikuj</button>
+            <button onClick="{{remove}}" style="min-height: 40px; border: 1px solid #8A3B24; border-radius: 8px; background: #FFFFFF; color: #8A3B24; font-size: 13px">Usuń</button>
+          </div>
+        </section>
+      </sc-if>
+
+      <section style="background: #FFFFFF; border: 1px solid #D9DED9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 4px">
+        <h2 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #56615B">Elementy planu</h2>
+        <sc-for list="{{elements}}" as="el" hint-placeholder-count="5">
+          <button onClick="{{el.pick}}" aria-pressed="{{el.pressed}}" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 40px; padding: 0 8px; border: 1px solid {{el.bd}}; border-radius: 6px; background: {{el.bg}}; color: #1E2A23; font-size: 13px; text-align: left">
+            <span>{{el.label}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #56615B">{{el.sub}}</span>
+          </button>
+        </sc-for>
+        <sc-if value="{{noElements}}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; font-size: 13px; color: #56615B">Plan jest pusty. Zacznij od narzędzia „Granica działki”.</p>
+        </sc-if>
+      </section>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+var TYPES = {
+  boundary: { label: 'Granica działki', kind: 'poly', fill: 'rgba(255,255,255,0)', stroke: '#8A3B24', sw: 2, dash: '8 5', z: 0 },
+  grass:    { label: 'Trawnik', kind: 'poly', fill: 'url(#pGrass)', stroke: '#5E8F45', sw: 1, dash: 'none', z: 1 },
+  gravel:   { label: 'Żwir', kind: 'poly', fill: 'url(#pGravel)', stroke: '#9C927C', sw: 1, dash: 'none', z: 2 },
+  paving:   { label: 'Kostka brukowa', kind: 'poly', fill: 'url(#pPave)', stroke: '#6F695F', sw: 1, dash: 'none', z: 2 },
+  bed:      { label: 'Rabata', kind: 'poly', fill: 'url(#pBed)', stroke: '#5E4430', sw: 1, dash: 'none', z: 3 },
+  house:    { label: 'Dom / budynek', kind: 'poly', fill: 'url(#pHouse)', stroke: '#26302A', sw: 2, dash: 'none', z: 4 },
+  shrub:    { label: 'Krzew', kind: 'point', r: 0.6, fill: 'rgba(122,166,82,0.8)', stroke: '#4F7A35', z: 5 },
+  conifer:  { label: 'Iglak', kind: 'point', r: 1.0, fill: 'rgba(46,94,62,0.72)', stroke: '#1F4430', z: 6 },
+  tree:     { label: 'Drzewo liściaste', kind: 'point', r: 2.5, fill: 'rgba(86,145,78,0.42)', stroke: '#3B6E38', z: 7 }
+};
+var SOLID = { grass: '#A8CF85', gravel: '#E3DDCF', paving: '#C7C1B6', bed: '#8F6E50', house: '#ECE8E1' };
+function dateStr() { var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+function isNum(v) { return typeof v === 'number' && isFinite(v); }
+var ORDER_POLY = ['boundary', 'grass', 'paving', 'gravel', 'bed', 'house'];
+var ORDER_PT = ['tree', 'conifer', 'shrub'];
+var ZOOMS = [8, 12, 16, 20, 28, 36, 48, 64, 80];
+var STORE = 'planer-ogrodu-v1';
+
+function r2(v) { return Math.round(v * 100) / 100; }
+function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
+function area(p) { var a = 0; for (var i = 0; i < p.length; i++) { var q = p[(i + 1) % p.length]; a += p[i][0] * q[1] - q[0] * p[i][1]; } return Math.abs(a) / 2; }
+function perim(p) { var s = 0; for (var i = 0; i < p.length; i++) s += dist(p[i], p[(i + 1) % p.length]); return s; }
+function bbox(p) { var b = [Infinity, Infinity, -Infinity, -Infinity]; p.forEach(function (q) { b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[0]); b[3] = Math.max(b[3], q[1]); }); return b; }
+function centroid(p) {
+  var a = 0, cx = 0, cy = 0;
+  for (var i = 0; i < p.length; i++) { var q = p[(i + 1) % p.length]; var f = p[i][0] * q[1] - q[0] * p[i][1]; a += f; cx += (p[i][0] + q[0]) * f; cy += (p[i][1] + q[1]) * f; }
+  if (Math.abs(a) < 1e-9) { var b = bbox(p); return [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2]; }
+  return [cx / (3 * a), cy / (3 * a)];
+}
+function inPoly(pt, p) {
+  var x = pt[0], y = pt[1], inside = false;
+  for (var i = 0, j = p.length - 1; i < p.length; j = i++) {
+    var xi = p[i][0], yi = p[i][1], xj = p[j][0], yj = p[j][1];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+function segDist(p, a, b) {
+  var dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy;
+  var t = l2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2)) : 0;
+  var q = [a[0] + t * dx, a[1] + t * dy];
+  return { d: dist(p, q), q: q };
+}
+function ptsStr(p) { return p.map(function (q) { return q[0] + ',' + q[1]; }).join(' '); }
+function fmtN(v) { return String(r2(v)).replace('.', ','); }
+function fmtM(v) { return v.toFixed(2).replace('.', ',') + ' m'; }
+function fmtA(a) { return (a >= 100 ? a.toFixed(0) : a.toFixed(1)).replace('.', ',') + ' m²'; }
+function parseNum(str) { var t = String(str).trim().replace(',', '.'); if (t === '' || t === '-' || t === '.') return NaN; var n = Number(t); return isFinite(n) ? n : NaN; }
+function rectPts(a, b) { var x0 = Math.min(a[0], b[0]), y0 = Math.min(a[1], b[1]), x1 = Math.max(a[0], b[0]), y1 = Math.max(a[1], b[1]); return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]; }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function sample() {
+  return [
+    { id: 'b1', type: 'boundary', pts: [[1, 1.5], [27.5, 1], [28, 20.5], [1, 20]] },
+    { id: 'g1', type: 'grass', pts: [[1, 1.5], [27.5, 1], [28, 20.5], [1, 20]] },
+    { id: 'p1', type: 'paving', name: 'Podjazd', pts: [[17, 1.2], [21, 1.12], [21, 8], [17, 8]] },
+    { id: 'p2', type: 'paving', name: 'Taras', pts: [[8, 12], [14, 12], [14, 15.5], [8, 15.5]] },
+    { id: 'v1', type: 'gravel', name: 'Ścieżka', pts: [[14, 14], [20, 14], [20, 15], [14, 15]] },
+    { id: 'h1', type: 'house', name: 'Dom', pts: [[6, 4], [17, 4], [17, 12], [6, 12]] },
+    { id: 'd1', type: 'bed', name: 'Rabata bylinowa', pts: [[20, 15.5], [26.8, 15.5], [26.9, 19.6], [20, 19.6]] },
+    { id: 't1', type: 'tree', name: 'Klon', x: 4.5, y: 16, r: 2.8 },
+    { id: 't2', type: 'tree', name: 'Jabłoń', x: 24, y: 7, r: 2.2 },
+    { id: 'c1', type: 'conifer', x: 2.4, y: 4, r: 1 },
+    { id: 'c2', type: 'conifer', x: 2.4, y: 6.5, r: 1 },
+    { id: 'c3', type: 'conifer', x: 2.4, y: 9, r: 1 },
+    { id: 's1', type: 'shrub', x: 18.5, y: 12.6, r: 0.6 },
+    { id: 's2', type: 'shrub', x: 20, y: 12.9, r: 0.6 },
+    { id: 's3', type: 'shrub', x: 21.5, y: 12.5, r: 0.6 }
+  ];
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      W: 30, H: 22, scale: 28, shapes: sample(), tool: 'select', mode: 'poly', draft: [], hover: null,
+      sel: null, step: 0.5, angSnap: false, showDims: true, showLabels: true, edits: {},
+      startX: '0', startY: '0', segLen: '', segAng: '0', rectW: '10', rectH: '8', rectOn: false, histLen: 0,
+      bg: null, bgMode: null, calib: [], calibLen: '', msg: '', dl: null
+    };
+    this.hist = [];
+    this.drag = null;
+    this.rectStart = null;
+    this.idc = Date.now();
+  }
+
+  componentDidMount() {
+    try {
+      var raw = window.localStorage.getItem(STORE);
+      if (raw) { var d = this.validate(JSON.parse(raw)); this.setState({ shapes: d.shapes, W: d.W, H: d.H, bg: d.bg }); }
+    } catch (e) {}
+  }
+  componentDidUpdate(pp, ps) {
+    var s = this.state;
+    if (ps.shapes !== s.shapes || ps.W !== s.W || ps.H !== s.H || ps.bg !== s.bg) {
+      var data = { shapes: s.shapes, W: s.W, H: s.H, bg: s.bg };
+      try { window.localStorage.setItem(STORE, JSON.stringify(data)); }
+      catch (e) { try { data.bg = null; window.localStorage.setItem(STORE, JSON.stringify(data)); } catch (e2) {} }
+    }
+    if (s.dl && ps.dl !== s.dl) {
+      setTimeout(function () { try { var a = document.getElementById('dl-link'); if (a) a.click(); } catch (e) {} }, 60);
+    }
+  }
+
+  validate(d) {
+    if (!d || typeof d !== 'object' || !Array.isArray(d.shapes)) throw new Error('to nie jest plik planu ogrodu');
+    var self = this, shapes = [];
+    d.shapes.forEach(function (sh) {
+      if (!sh || !TYPES[sh.type]) return;
+      var t = TYPES[sh.type], o = { id: typeof sh.id === 'string' ? sh.id : self.newId(), type: sh.type };
+      if (typeof sh.name === 'string') o.name = sh.name.slice(0, 80);
+      if (t.kind === 'poly') {
+        if (!Array.isArray(sh.pts)) return;
+        var pts = sh.pts.filter(function (p) { return Array.isArray(p) && isNum(p[0]) && isNum(p[1]); }).map(function (p) { return [p[0], p[1]]; });
+        if (pts.length < 3) return; o.pts = pts;
+      } else {
+        if (!isNum(sh.x) || !isNum(sh.y)) return;
+        o.x = sh.x; o.y = sh.y; o.r = isNum(sh.r) && sh.r > 0 ? sh.r : t.r;
+      }
+      shapes.push(o);
+    });
+    var W = isNum(d.W) ? Math.max(5, Math.min(500, d.W)) : 30, H = isNum(d.H) ? Math.max(5, Math.min(500, d.H)) : 22, bg = null;
+    var b = d.bg;
+    if (b && typeof b.src === 'string' && b.src.indexOf('data:image/') === 0 && isNum(b.w) && b.w > 0 && isNum(b.aspect) && b.aspect > 0) {
+      bg = { src: b.src, x: isNum(b.x) ? b.x : 0, y: isNum(b.y) ? b.y : 0, w: b.w, aspect: b.aspect, opacity: isNum(b.opacity) ? Math.max(0.1, Math.min(1, b.opacity)) : 0.6, visible: b.visible !== false };
+    }
+    return { shapes: shapes, W: W, H: H, bg: bg };
+  }
+  setDl(blob, name, msg) {
+    var old = this.state.dl;
+    if (old) { setTimeout(function () { try { URL.revokeObjectURL(old.url); } catch (e) {} }, 30000); }
+    this.setState({ dl: { url: URL.createObjectURL(blob), name: name }, msg: msg });
+  }
+  saveFile() {
+    var s = this.state;
+    var data = { app: 'planer-ogrodu', version: 1, savedAt: new Date().toISOString(), W: s.W, H: s.H, shapes: s.shapes, bg: s.bg };
+    this.setDl(new Blob([JSON.stringify(data)], { type: 'application/json' }), 'plan-ogrodu-' + dateStr() + '.json',
+      'Plan zapisany' + (s.bg ? ' razem z mapką' : '') + '. Otworzysz go później przyciskiem „Otwórz plik”.');
+  }
+  openFile(e) {
+    var self = this, input = e.target, f = input.files && input.files[0];
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () {
+      try {
+        var d = self.validate(JSON.parse(fr.result));
+        self.pushHist();
+        self.setState({ shapes: d.shapes, W: d.W, H: d.H, bg: d.bg, sel: null, draft: [], tool: 'select', edits: {}, bgMode: null, calib: [], dl: null,
+          msg: 'Wczytano „' + f.name + '”: ' + d.shapes.length + ' elementów' + (d.bg ? ' i mapka' : '') + '.' });
+      } catch (err) { self.setState({ msg: 'Nie udało się wczytać pliku „' + f.name + '”: ' + (err && err.message ? err.message : 'błędny format') + '.', dl: null }); }
+      try { input.value = ''; } catch (x) {}
+    };
+    fr.onerror = function () { self.setState({ msg: 'Nie udało się odczytać pliku.', dl: null }); };
+    fr.readAsText(f);
+  }
+  readImage(e) {
+    var self = this, input = e.target, f = input.files && input.files[0];
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var nw = img.naturalWidth, nh = img.naturalHeight, src = fr.result, k = Math.min(1, 2400 / Math.max(nw, nh));
+        if (k < 1 || f.size > 1500000) {
+          try {
+            var c = document.createElement('canvas'); c.width = Math.round(nw * k); c.height = Math.round(nh * k);
+            var g = c.getContext('2d'); g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+            src = c.toDataURL('image/jpeg', 0.86);
+          } catch (x) {}
+        }
+        var s = self.state, aspect = nh / nw, bw = s.W;
+        if (bw * aspect > s.H) bw = s.H / aspect;
+        self.setState({ bg: { src: src, x: 0, y: 0, w: Math.round(bw * 1000) / 1000, aspect: aspect, opacity: 0.6, visible: true },
+          bgMode: 'calib', calib: [], calibLen: '', tool: 'select', sel: null, draft: [], dl: null,
+          msg: 'Mapka wczytana. Teraz ustaw skalę: kliknij na mapce dwa punkty o znanej odległości i wpisz ją po lewej.' });
+        try { input.value = ''; } catch (x) {}
+      };
+      img.onerror = function () { self.setState({ msg: 'Nie udało się odczytać obrazu. Użyj pliku JPG lub PNG.', dl: null }); };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+  }
+  applyCalib() {
+    var s = this.state, c = s.calib, real = parseNum(s.calibLen), b = s.bg;
+    if (!b || c.length < 2 || !(real > 0)) return;
+    var m = dist(c[0], c[1]); if (m < 1e-6) return;
+    var f = real / m, p = c[0];
+    var nb = Object.assign({}, b, { w: Math.round(b.w * f * 10000) / 10000, x: r2(p[0] - (p[0] - b.x) * f), y: r2(p[1] - (p[1] - b.y) * f) });
+    if (nb.x < 0) nb.x = 0; if (nb.y < 0) nb.y = 0;
+    var W = Math.min(500, Math.max(s.W, Math.ceil(nb.x + nb.w))), H = Math.min(500, Math.max(s.H, Math.ceil(nb.y + nb.w * nb.aspect)));
+    this.setState({ bg: nb, W: W, H: H, bgMode: null, calib: [], dl: null,
+      msg: 'Skala ustawiona: mapka ma teraz ' + fmtM(nb.w) + ' szerokości. Możesz obrysować granice narzędziem „Granica działki”.' });
+  }
+  exportPng() {
+    var self = this, s = this.state, T = TYPES;
+    var S = Math.max(10, Math.min(60, Math.floor(6000 / Math.max(s.W, s.H)))), pad = 56;
+    var c = document.createElement('canvas'); c.width = Math.round(s.W * S) + pad * 2; c.height = Math.round(s.H * S) + pad * 2 + 30;
+    var g = c.getContext('2d');
+    function path(pts) { g.beginPath(); pts.forEach(function (p, i) { if (i) g.lineTo(p[0] * S, p[1] * S); else g.moveTo(p[0] * S, p[1] * S); }); g.closePath(); }
+    function tag(text, sub, x, y) {
+      g.font = '600 13px sans-serif'; var w1 = g.measureText(text).width; g.font = '12px monospace'; var w2 = sub ? g.measureText(sub).width : 0;
+      var w = Math.max(w1, w2) + 12, h = sub ? 36 : 20;
+      g.fillStyle = 'rgba(255,255,255,0.88)'; g.fillRect(x - w / 2, y - h / 2, w, h);
+      g.fillStyle = '#1E2A23'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '600 13px sans-serif'; g.fillText(text, x, sub ? y - 8 : y);
+      if (sub) { g.font = '12px monospace'; g.fillStyle = '#3D4842'; g.fillText(sub, x, y + 9); }
+    }
+    function draw(img) {
+      g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, c.width, c.height);
+      g.save(); g.translate(pad, pad);
+      var x, y;
+      for (x = 0; x <= s.W; x++) { g.strokeStyle = x % 5 ? 'rgba(30,42,35,0.07)' : 'rgba(30,42,35,0.18)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x * S + 0.5, 0); g.lineTo(x * S + 0.5, s.H * S); g.stroke(); }
+      for (y = 0; y <= s.H; y++) { g.strokeStyle = y % 5 ? 'rgba(30,42,35,0.07)' : 'rgba(30,42,35,0.18)'; g.beginPath(); g.moveTo(0, y * S + 0.5); g.lineTo(s.W * S, y * S + 0.5); g.stroke(); }
+      g.fillStyle = '#56615B'; g.font = '11px monospace'; g.textAlign = 'center'; g.textBaseline = 'bottom';
+      for (x = 0; x <= s.W; x += 5) g.fillText(String(x), x * S, -6);
+      g.textAlign = 'right'; g.textBaseline = 'middle';
+      for (y = 0; y <= s.H; y += 5) g.fillText(String(y), -8, y * S);
+      if (img && s.bg) { g.globalAlpha = s.bg.opacity; g.drawImage(img, s.bg.x * S, s.bg.y * S, s.bg.w * S, s.bg.w * s.bg.aspect * S); g.globalAlpha = 1; }
+      var ord = s.shapes.map(function (sh, i) { return { sh: sh, i: i }; });
+      ord.sort(function (a, b) { return (T[a.sh.type].z - T[b.sh.type].z) || (a.i - b.i); });
+      g.lineJoin = 'round';
+      ord.forEach(function (o) {
+        var sh = o.sh, t = T[sh.type];
+        if (t.kind === 'poly' && sh.type !== 'boundary') { path(sh.pts); g.fillStyle = SOLID[sh.type]; g.fill(); g.strokeStyle = t.stroke; g.lineWidth = t.sw; g.stroke(); }
+        if (t.kind === 'point') { g.beginPath(); g.arc(sh.x * S, sh.y * S, sh.r * S, 0, Math.PI * 2); g.fillStyle = t.fill; g.fill(); g.strokeStyle = t.stroke; g.lineWidth = 1.5; g.stroke(); }
+      });
+      s.shapes.forEach(function (sh) {
+        if (sh.type !== 'boundary') return;
+        path(sh.pts); g.setLineDash([8, 5]); g.strokeStyle = T.boundary.stroke; g.lineWidth = 2; g.stroke(); g.setLineDash([]);
+        for (var i = 0; i < sh.pts.length; i++) {
+          var a = sh.pts[i], b = sh.pts[(i + 1) % sh.pts.length], len = dist(a, b);
+          if (len * S < 44) continue;
+          g.font = '11px monospace'; var txt = fmtM(len), w = g.measureText(txt).width + 10, mx = (a[0] + b[0]) / 2 * S, my = (a[1] + b[1]) / 2 * S;
+          g.fillStyle = '#8A3B24'; g.fillRect(mx - w / 2, my - 9, w, 18); g.fillStyle = '#FFFFFF'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, mx, my);
+        }
+      });
+      ord.forEach(function (o) {
+        var sh = o.sh, t = T[sh.type];
+        if (t.kind === 'poly' && sh.type !== 'boundary') {
+          var bb = bbox(sh.pts); if ((bb[2] - bb[0]) * S < 70 || (bb[3] - bb[1]) * S < 36) return;
+          var cc = centroid(sh.pts); tag(sh.name || t.label, fmtA(area(sh.pts)), cc[0] * S, cc[1] * S);
+        } else if (t.kind === 'point' && sh.name) tag(sh.name, '', sh.x * S, sh.y * S);
+      });
+      g.restore();
+      var plot = 0; s.shapes.forEach(function (sh) { if (sh.type === 'boundary') plot += area(sh.pts); });
+      var by = c.height - 26;
+      g.fillStyle = '#1E2A23'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.font = '600 15px sans-serif';
+      g.fillText('Plan ogrodu' + (plot ? ' · działka ' + fmtA(plot) : '') + ' · ' + dateStr(), pad, by);
+      var bar = 5 * S, bx = c.width - pad - bar;
+      g.strokeStyle = '#1E2A23'; g.lineWidth = 2; g.beginPath(); g.moveTo(bx, by - 6); g.lineTo(bx, by + 2); g.lineTo(bx + bar, by + 2); g.lineTo(bx + bar, by - 6); g.stroke();
+      g.font = '12px monospace'; g.textAlign = 'right'; g.fillText('5 m', bx - 8, by);
+      try {
+        c.toBlob(function (blob) {
+          if (blob) self.setDl(blob, 'plan-ogrodu-' + dateStr() + '.png', 'Obraz planu gotowy do pobrania.');
+          else self.setState({ msg: 'Nie udało się utworzyć obrazu.', dl: null });
+        }, 'image/png');
+      } catch (err) { self.setState({ msg: 'Nie udało się utworzyć obrazu.', dl: null }); }
+    }
+    if (s.bg && s.bg.visible) { var im = new Image(); im.onload = function () { draw(im); }; im.onerror = function () { draw(null); }; im.src = s.bg.src; }
+    else draw(null);
+  }
+
+  newId() { this.idc += 1; return 'e' + this.idc.toString(36); }
+  pushHist() { this.hist.push(JSON.stringify(this.state.shapes)); if (this.hist.length > 80) this.hist.shift(); this.setState({ histLen: this.hist.length }); }
+  undo() { if (!this.hist.length) return; var prev = JSON.parse(this.hist.pop()); this.setState({ shapes: prev, sel: null, edits: {}, histLen: this.hist.length }); }
+  getSel() { var id = this.state.sel; if (!id) return null; for (var i = 0; i < this.state.shapes.length; i++) if (this.state.shapes[i].id === id) return this.state.shapes[i]; return null; }
+  updShape(id, fn) { this.setState(function (st) { return { shapes: st.shapes.map(function (x) { return x.id === id ? fn(x) : x; }) }; }); }
+  setTool(k) { this.drag = null; this.rectStart = null; this.setState({ tool: k, draft: [], rectOn: false, sel: k === 'select' ? this.state.sel : null, edits: {}, bgMode: null, calib: [] }); }
+
+  pt(e) { var r = e.currentTarget.getBoundingClientRect(); var sc = this.state.scale; return [(e.clientX - r.left) / sc, (e.clientY - r.top) / sc]; }
+  snapV(v) { var st = this.state.step; return st ? r2(Math.round(v / st) * st) : r2(v); }
+  snapP(p) { return [this.snapV(p[0]), this.snapV(p[1])]; }
+  draftPoint(raw) {
+    var s = this.state, d = s.draft, p = this.snapP(raw);
+    if (d.length && s.angSnap) {
+      var l = d[d.length - 1], len = dist(raw, l), a = Math.atan2(raw[1] - l[1], raw[0] - l[0]), q = Math.PI / 12;
+      a = Math.round(a / q) * q;
+      if (s.step) len = Math.round(len / s.step) * s.step;
+      p = [r2(l[0] + len * Math.cos(a)), r2(l[1] + len * Math.sin(a))];
+    }
+    return p;
+  }
+  hitTest(raw) {
+    var s = this.state, thr = 8 / s.scale;
+    var list = s.shapes.map(function (sh, i) { return { sh: sh, i: i }; });
+    list.sort(function (a, b) { return (TYPES[b.sh.type].z - TYPES[a.sh.type].z) || (b.i - a.i); });
+    var i, sh;
+    for (i = 0; i < list.length; i++) { sh = list[i].sh; if (TYPES[sh.type].kind === 'point' && dist([sh.x, sh.y], raw) <= Math.max(sh.r * 0.75, thr)) return sh; }
+    for (i = 0; i < list.length; i++) {
+      sh = list[i].sh;
+      if (sh.type === 'boundary') { for (var k = 0; k < sh.pts.length; k++) if (segDist(raw, sh.pts[k], sh.pts[(k + 1) % sh.pts.length]).d <= thr) return sh; }
+    }
+    for (i = 0; i < list.length; i++) { sh = list[i].sh; if (TYPES[sh.type].kind === 'poly' && sh.type !== 'boundary' && inPoly(raw, sh.pts)) return sh; }
+    return null;
+  }
+  addShape(sh, keepTool) {
+    this.pushHist();
+    this.setState(function (st) { return { shapes: st.shapes.concat([sh]), sel: sh.id, draft: [], rectOn: false, tool: keepTool ? st.tool : 'select', edits: {} }; });
+  }
+  finishDraft() {
+    var d = this.state.draft; if (d.length < 3) return;
+    this.addShape({ id: this.newId(), type: this.state.tool, pts: d.slice() }, false);
+  }
+
+  onDown(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    var s = this.state, raw = this.pt(e), t = TYPES[s.tool];
+    var tgt = e.currentTarget;
+    var cap = function () { try { tgt.setPointerCapture(e.pointerId); } catch (x) {} };
+    if (s.bg && s.bgMode === 'calib') {
+      var cp = [Math.round(raw[0] * 1000) / 1000, Math.round(raw[1] * 1000) / 1000];
+      this.setState({ calib: s.calib.length >= 2 ? [cp] : s.calib.concat([cp]) });
+      return;
+    }
+    if (s.bg && s.bgMode === 'move') { this.drag = { kind: 'bg', start: raw, orig: { x: s.bg.x, y: s.bg.y } }; cap(); return; }
+    if (s.tool === 'select') {
+      var sel = this.getSel(), thr = 9 / s.scale;
+      if (sel && TYPES[sel.type].kind === 'poly') {
+        for (var i = 0; i < sel.pts.length; i++) if (dist(sel.pts[i], raw) <= thr) { this.drag = { kind: 'vertex', id: sel.id, i: i, pushed: false }; cap(); return; }
+      }
+      var hit = this.hitTest(raw);
+      if (hit) { this.drag = { kind: 'move', id: hit.id, start: raw, orig: clone(hit), pushed: false }; cap(); this.setState({ sel: hit.id, edits: {} }); }
+      else this.setState({ sel: null, edits: {} });
+      return;
+    }
+    if (t.kind === 'point') {
+      var p = this.snapP(raw);
+      this.addShape({ id: this.newId(), type: s.tool, x: p[0], y: p[1], r: t.r }, true);
+      return;
+    }
+    if (s.mode === 'rect') { this.rectStart = this.snapP(raw); cap(); this.setState({ rectOn: true, hover: this.rectStart }); return; }
+    var d = s.draft;
+    if (d.length >= 3 && dist(d[0], raw) <= 10 / s.scale) { this.finishDraft(); return; }
+    var np = this.draftPoint(raw);
+    if (d.length && dist(d[d.length - 1], np) < 0.005) return;
+    this.setState({ draft: d.concat([np]) });
+  }
+  onMove(e) {
+    var s = this.state, raw = this.pt(e), dr = this.drag;
+    if (dr && dr.kind === 'bg') {
+      var bx = r2(dr.orig.x + raw[0] - dr.start[0]), by = r2(dr.orig.y + raw[1] - dr.start[1]);
+      this.setState(function (st) { return st.bg ? { bg: Object.assign({}, st.bg, { x: bx, y: by }), hover: raw, edits: {} } : null; });
+      return;
+    }
+    if (s.bgMode === 'calib') { this.setState({ hover: raw }); return; }
+    if (dr) {
+      if (!dr.pushed) { this.pushHist(); dr.pushed = true; }
+      if (dr.kind === 'vertex') {
+        var p = this.snapP(raw);
+        this.updShape(dr.id, function (x) { var pts = x.pts.slice(); pts[dr.i] = p; return Object.assign({}, x, { pts: pts }); });
+      } else {
+        var dx = raw[0] - dr.start[0], dy = raw[1] - dr.start[1];
+        if (s.step) { dx = Math.round(dx / s.step) * s.step; dy = Math.round(dy / s.step) * s.step; }
+        var o = dr.orig;
+        var n = o.pts ? Object.assign({}, o, { pts: o.pts.map(function (q) { return [r2(q[0] + dx), r2(q[1] + dy)]; }) }) : Object.assign({}, o, { x: r2(o.x + dx), y: r2(o.y + dy) });
+        this.updShape(dr.id, function () { return n; });
+      }
+      this.setState({ hover: this.snapP(raw), edits: {} });
+      return;
+    }
+    var isDraw = s.tool !== 'select' && TYPES[s.tool].kind === 'poly' && s.mode === 'poly';
+    this.setState({ hover: isDraw ? this.draftPoint(raw) : this.snapP(raw) });
+  }
+  onUp(e) {
+    var s = this.state;
+    if (s.rectOn && this.rectStart) {
+      var b = this.snapP(this.pt(e)), a = this.rectStart;
+      this.rectStart = null;
+      if (Math.abs(b[0] - a[0]) >= 0.1 && Math.abs(b[1] - a[1]) >= 0.1) this.addShape({ id: this.newId(), type: s.tool, pts: rectPts(a, b) }, false);
+      else this.setState({ rectOn: false });
+    }
+    this.drag = null;
+  }
+  onLeave() { if (!this.drag && !this.state.rectOn) this.setState({ hover: null }); }
+  onDbl(e) {
+    var s = this.state;
+    if (s.tool !== 'select' && TYPES[s.tool].kind === 'poly' && s.mode === 'poly') { this.finishDraft(); return; }
+    var sel = this.getSel();
+    if (s.tool === 'select' && sel && TYPES[sel.type].kind === 'poly') {
+      var raw = this.pt(e), best = null;
+      for (var i = 0; i < sel.pts.length; i++) {
+        var r = segDist(raw, sel.pts[i], sel.pts[(i + 1) % sel.pts.length]);
+        if (!best || r.d < best.d) best = { d: r.d, i: i, q: r.q };
+      }
+      if (best && best.d <= 10 / s.scale) {
+        var q = this.snapP(best.q);
+        this.pushHist();
+        this.updShape(sel.id, function (x) { var pts = x.pts.slice(); pts.splice(best.i + 1, 0, q); return Object.assign({}, x, { pts: pts }); });
+      }
+    }
+  }
+
+  ev(key, val) { var ed = this.state.edits; return Object.prototype.hasOwnProperty.call(ed, key) ? ed[key] : fmtN(val); }
+  mkEdit(key, apply) {
+    var self = this;
+    return function (e) {
+      var str = e.target.value, ed = Object.assign({}, self.state.edits); ed[key] = str;
+      self.setState({ edits: ed });
+      var n = parseNum(str); if (!isNaN(n)) apply(n);
+    };
+  }
+  mkBlur(key) { var self = this; return function () { var ed = Object.assign({}, self.state.edits); delete ed[key]; self.setState({ edits: ed }); }; }
+  mkStr(field) { var self = this; return function (e) { var o = {}; o[field] = e.target.value; self.setState(o); }; }
+
+  netAreas(shapes) {
+    if (this._memoS === shapes) return this._memoA;
+    var polys = [], bnds = [];
+    shapes.forEach(function (sh, i) {
+      var t = TYPES[sh.type]; if (t.kind !== 'poly' || sh.pts.length < 3) return;
+      if (sh.type === 'boundary') bnds.push(sh); else polys.push({ sh: sh, i: i, b: bbox(sh.pts) });
+    });
+    polys.sort(function (a, b) { return (TYPES[b.sh.type].z - TYPES[a.sh.type].z) || (b.i - a.i); });
+    var out = { free: 0 }, res = 0.2, cell = res * res, all = [];
+    bnds.forEach(function (b) { all.push(bbox(b.pts)); });
+    if (!bnds.length) polys.forEach(function (p) { all.push(p.b); });
+    if (all.length) {
+      var B = [Infinity, Infinity, -Infinity, -Infinity];
+      all.forEach(function (b) { B[0] = Math.min(B[0], b[0]); B[1] = Math.min(B[1], b[1]); B[2] = Math.max(B[2], b[2]); B[3] = Math.max(B[3], b[3]); });
+      for (var x = B[0] + res / 2; x < B[2]; x += res) {
+        for (var y = B[1] + res / 2; y < B[3]; y += res) {
+          var p = [x, y];
+          if (bnds.length) { var inB = false; for (var k = 0; k < bnds.length; k++) if (inPoly(p, bnds[k].pts)) { inB = true; break; } if (!inB) continue; }
+          var hit = null;
+          for (var j = 0; j < polys.length; j++) { var bb = polys[j].b; if (x < bb[0] || x > bb[2] || y < bb[1] || y > bb[3]) continue; if (inPoly(p, polys[j].sh.pts)) { hit = polys[j].sh.type; break; } }
+          if (hit) out[hit] = (out[hit] || 0) + cell; else out.free += cell;
+        }
+      }
+    }
+    this._memoS = shapes; this._memoA = out;
+    return out;
+  }
+
+  renderVals() {
+    var self = this, s = this.state, sc = s.scale, T = TYPES, sel = this.getSel();
+    var isPolyTool = s.tool !== 'select' && T[s.tool].kind === 'poly';
+    var isPointTool = s.tool !== 'select' && T[s.tool].kind === 'point';
+
+    var ordered = s.shapes.map(function (sh, i) { return { sh: sh, i: i }; });
+    ordered.sort(function (a, b) { return (T[a.sh.type].z - T[b.sh.type].z) || (a.i - b.i); });
+    var polys = [], bounds = [], points = [], labels = [], edgeLabels = [], handles = [];
+    ordered.forEach(function (o) {
+      var sh = o.sh, t = T[sh.type];
+      if (t.kind === 'poly') {
+        var item = { key: sh.id, points: ptsStr(sh.pts), fill: t.fill, stroke: t.stroke, sw: t.sw, dash: t.dash };
+        if (sh.type === 'boundary') bounds.push(item); else polys.push(item);
+        if (s.showLabels && sh.pts.length >= 3) {
+          var bb = bbox(sh.pts);
+          if (sh.type === 'boundary') {
+            var tl = sh.pts.reduce(function (m, p) { return (p[0] + p[1] < m[0] + m[1]) ? p : m; });
+            labels.push({ key: 'l' + sh.id, x: tl[0] * sc, y: tl[1] * sc, tf: 'translate(4px, calc(-100% - 4px))', title: sh.name || 'Działka', sub: fmtA(area(sh.pts)) });
+          } else if ((bb[2] - bb[0]) * sc >= 70 && (bb[3] - bb[1]) * sc >= 36) {
+            var c = centroid(sh.pts);
+            labels.push({ key: 'l' + sh.id, x: c[0] * sc, y: c[1] * sc, tf: 'translate(-50%, -50%)', title: sh.name || t.label, sub: fmtA(area(sh.pts)) });
+          }
+        }
+      } else {
+        points.push({ key: sh.id, cx: sh.x, cy: sh.y, r: sh.r, fill: t.fill, stroke: t.stroke, dotR: sh.type === 'shrub' ? 0 : Math.min(0.15, sh.r * 0.2) });
+        if (s.showLabels && sh.name) labels.push({ key: 'l' + sh.id, x: sh.x * sc, y: sh.y * sc, tf: 'translate(-50%, -50%)', title: sh.name, sub: 'Ø ' + fmtN(sh.r * 2) + ' m' });
+      }
+    });
+
+    function edgesOf(pts, closed, prefix, bg) {
+      var out = [], n = closed ? pts.length : pts.length - 1;
+      for (var i = 0; i < n; i++) {
+        var a = pts[i], b = pts[(i + 1) % pts.length], len = dist(a, b);
+        if (len * sc < 44) continue;
+        out.push({ key: prefix + i, x: (a[0] + b[0]) / 2 * sc, y: (a[1] + b[1]) / 2 * sc, text: fmtM(len), bg: bg });
+      }
+      return out;
+    }
+
+    var selPolyOn = false, selPointOn = false, selPolyPts = '', selC = { cx: 0, cy: 0, r: 0 };
+    if (sel) {
+      if (T[sel.type].kind === 'poly') {
+        selPolyOn = true; selPolyPts = ptsStr(sel.pts);
+        sel.pts.forEach(function (p, i) { handles.push({ key: 'h' + i, x: p[0] * sc, y: p[1] * sc, size: 12, bg: '#FFFFFF', bd: '#C2561A', radius: '2px' }); });
+        edgeLabels = edgeLabels.concat(edgesOf(sel.pts, true, 'e', '#C2561A'));
+      } else {
+        selPointOn = true; selC = { cx: sel.x, cy: sel.y, r: sel.r };
+        handles.push({ key: 'hc', x: sel.x * sc, y: sel.y * sc, size: 10, bg: '#C2561A', bd: '#FFFFFF', radius: '50%' });
+      }
+    }
+    if (s.showDims) {
+      s.shapes.forEach(function (sh) { if (sh.type === 'boundary' && (!sel || sel.id !== sh.id)) edgeLabels = edgeLabels.concat(edgesOf(sh.pts, true, 'b' + sh.id + '-', '#8A3B24')); });
+    }
+
+    var draftPts = '', rectPtsStr = '', draftInfo = 'Kliknij na planie pierwszy punkt';
+    if (isPolyTool && s.mode === 'poly' && s.draft.length) {
+      var dp = s.draft.slice(); if (s.hover) dp.push(s.hover);
+      draftPts = ptsStr(dp);
+      s.draft.forEach(function (p, i) {
+        var closable = i === 0 && s.draft.length >= 3;
+        handles.push({ key: 'd' + i, x: p[0] * sc, y: p[1] * sc, size: i === 0 ? 14 : 10, bg: closable ? '#1F5FBF' : '#FFFFFF', bd: '#1F5FBF', radius: '50%' });
+      });
+      edgeLabels = edgeLabels.concat(edgesOf(dp, false, 'd', '#1F5FBF'));
+      draftInfo = 'Punkty: ' + s.draft.length;
+      if (s.hover) {
+        var l = s.draft[s.draft.length - 1], ang = Math.atan2(-(s.hover[1] - l[1]), s.hover[0] - l[0]) * 180 / Math.PI;
+        if (ang < 0) ang += 360;
+        draftInfo += ' · odcinek ' + fmtM(dist(l, s.hover)) + ' · ' + Math.round(ang) + '°';
+      }
+    }
+    if (isPolyTool && s.mode === 'rect' && s.rectOn && this.rectStart && s.hover) {
+      var rp = rectPts(this.rectStart, s.hover);
+      rectPtsStr = ptsStr(rp);
+      edgeLabels = edgeLabels.concat(edgesOf(rp, true, 'r', '#1F5FBF').slice(0, 2));
+    }
+
+    function toolBtn(k) {
+      var t = T[k], on = s.tool === k;
+      return { key: k, label: t.label, fill: t.fill, stroke: t.stroke, dash: k === 'boundary' ? '3 2' : 'none', rx: t.kind === 'point' ? 0.45 : 0.08,
+        pick: function () { self.setTool(k); }, bg: on ? '#E3EFE5' : '#FFFFFF', bd: on ? '#2F6B3F' : '#D9DED9', fw: on ? '600' : '400', pressed: on ? 'true' : 'false' };
+    }
+    var selOn = s.tool === 'select';
+
+    var steps = [{ k: 1, label: '1 m' }, { k: 0.5, label: '0,5 m' }, { k: 0.1, label: '0,1 m' }, { k: 0, label: 'Wył.' }].map(function (p) {
+      var on = s.step === p.k;
+      return { key: 's' + p.k, label: p.label, pick: function () { self.setState({ step: p.k }); }, bg: on ? '#E3EFE5' : '#FFFFFF', bd: on ? '#2F6B3F' : '#D9DED9', pressed: on ? 'true' : 'false' };
+    });
+    var toggles = [['angSnap', 'Kąty co 15° przy rysowaniu'], ['showDims', 'Wymiary granicy działki'], ['showLabels', 'Nazwy i powierzchnie']].map(function (g) {
+      var on = !!s[g[0]];
+      return { key: g[0], label: g[1], pressed: on ? 'true' : 'false', box: on ? '#2F6B3F' : '#FFFFFF', toggle: function () { var o = {}; o[g[0]] = !self.state[g[0]]; self.setState(o); } };
+    });
+
+    var tickStep = sc >= 40 ? 2 : sc >= 16 ? 5 : 10, ticksX = [], ticksY = [], v;
+    for (v = 0; v <= s.W + 1e-9; v += tickStep) ticksX.push({ key: 'x' + v, pos: v * sc, label: String(v) });
+    for (v = 0; v <= s.H + 1e-9; v += tickStep) ticksY.push({ key: 'y' + v, pos: v * sc, label: String(v) });
+    var barM = sc >= 40 ? 2 : sc >= 16 ? 5 : 10;
+
+    var net = this.netAreas(s.shapes), plot = 0;
+    s.shapes.forEach(function (sh) { if (sh.type === 'boundary') plot += area(sh.pts); });
+    var counts = {};
+    s.shapes.forEach(function (sh) { if (T[sh.type].kind === 'point') counts[sh.type] = (counts[sh.type] || 0) + 1; });
+    var summary = ORDER_POLY.filter(function (k) { return k !== 'boundary' && net[k] > 0.001; }).map(function (k) { return { key: k, label: T[k].label, val: fmtA(net[k]) }; });
+    if (plot && net.free > 0.05) summary.push({ key: 'free', label: 'Niezagospodarowane', val: fmtA(net.free) });
+    ORDER_PT.forEach(function (k) { if (counts[k]) summary.push({ key: k, label: T[k].label, val: counts[k] + ' szt.' }); });
+    var pbc = plot ? Math.round(((net.grass || 0) + (net.bed || 0)) / plot * 100) + '%' : '—';
+
+    var matOpts = [], vertices = [], edges = [], insp = { name: '', type: '', area: '', perim: '', reserveOn: false, reserve: '' };
+    var ptX = '', ptY = '', ptD = '', onPtX = null, onPtY = null, onPtD = null;
+    if (sel) {
+      var st = T[sel.type], sid = sel.id;
+      insp.name = sel.name || ''; insp.type = st.label;
+      matOpts = (st.kind === 'poly' ? ORDER_POLY : ORDER_PT).map(function (k) {
+        var on = k === sel.type;
+        return { key: k, label: T[k].label, pressed: on ? 'true' : 'false', bg: on ? '#E3EFE5' : '#FFFFFF', bd: on ? '#2F6B3F' : '#D9DED9',
+          pick: function () { if (k === sel.type) return; self.pushHist(); self.updShape(sid, function (x) { var n = Object.assign({}, x, { type: k }); if (st.kind === 'point' && Math.abs(x.r - T[x.type].r) < 1e-6) n.r = T[k].r; return n; }); } };
+      });
+      if (st.kind === 'poly') {
+        var a = area(sel.pts);
+        insp.area = fmtA(a); insp.perim = fmtM(perim(sel.pts));
+        insp.reserveOn = sel.type === 'paving' || sel.type === 'gravel' || sel.type === 'grass'; insp.reserve = fmtA(a * 1.05);
+        vertices = sel.pts.map(function (p, i) {
+          var kx = sid + ':' + i + ':x', ky = sid + ':' + i + ':y';
+          return { key: 'v' + i, n: String(i + 1), xLabel: 'Punkt ' + (i + 1) + ' X', yLabel: 'Punkt ' + (i + 1) + ' Y', delLabel: 'Usuń punkt ' + (i + 1),
+            xVal: self.ev(kx, p[0]), yVal: self.ev(ky, p[1]), blurX: self.mkBlur(kx), blurY: self.mkBlur(ky),
+            onX: self.mkEdit(kx, function (n) { self.updShape(sid, function (x) { var pts = x.pts.slice(); pts[i] = [n, pts[i][1]]; return Object.assign({}, x, { pts: pts }); }); }),
+            onY: self.mkEdit(ky, function (n) { self.updShape(sid, function (x) { var pts = x.pts.slice(); pts[i] = [pts[i][0], n]; return Object.assign({}, x, { pts: pts }); }); }),
+            noDel: sel.pts.length <= 3,
+            del: function () { if (sel.pts.length <= 3) return; self.pushHist(); self.updShape(sid, function (x) { return Object.assign({}, x, { pts: x.pts.filter(function (_, j) { return j !== i; }) }); }); } };
+        });
+        edges = sel.pts.map(function (p, i) { var j = (i + 1) % sel.pts.length; return { key: 'ed' + i, n: (i + 1) + '–' + (j + 1), len: fmtM(dist(p, sel.pts[j])) }; });
+      } else {
+        ptX = self.ev(sid + ':x', sel.x); ptY = self.ev(sid + ':y', sel.y); ptD = self.ev(sid + ':d', sel.r * 2);
+        onPtX = self.mkEdit(sid + ':x', function (n) { self.updShape(sid, function (x) { return Object.assign({}, x, { x: n }); }); });
+        onPtY = self.mkEdit(sid + ':y', function (n) { self.updShape(sid, function (x) { return Object.assign({}, x, { y: n }); }); });
+        onPtD = self.mkEdit(sid + ':d', function (n) { if (n > 0) self.updShape(sid, function (x) { return Object.assign({}, x, { r: n / 2 }); }); });
+      }
+    }
+
+    var elements = s.shapes.slice().reverse().map(function (sh) {
+      var t = T[sh.type], on = sel && sel.id === sh.id;
+      return { key: 'el' + sh.id, label: sh.name ? sh.name + ' · ' + t.label : t.label, sub: t.kind === 'poly' ? fmtA(area(sh.pts)) : 'Ø ' + fmtN(sh.r * 2) + ' m',
+        pressed: on ? 'true' : 'false', bg: on ? '#FBEDE4' : '#FFFFFF', bd: on ? '#C2561A' : '#E6EAE5',
+        pick: function () { self.setState({ sel: sh.id, tool: 'select', draft: [], edits: {} }); } };
+    });
+
+    var bg = s.bg, calibActive = !!(bg && s.bgMode === 'calib'), moveActive = !!(bg && s.bgMode === 'move');
+    var calibPtsStr = '', calibInfo = 'Kliknij pierwszy punkt na mapce';
+    if (calibActive && s.calib.length) {
+      var cl = s.calib.slice(); if (cl.length === 1 && s.hover) cl.push(s.hover);
+      calibPtsStr = ptsStr(cl);
+      s.calib.forEach(function (p, i) { handles.push({ key: 'k' + i, x: p[0] * sc, y: p[1] * sc, size: 12, bg: '#6A3A9C', bd: '#FFFFFF', radius: '50%' }); });
+      if (cl.length === 2) {
+        var ml = dist(cl[0], cl[1]);
+        calibInfo = (s.calib.length === 2 ? 'Odcinek na mapce: ' : 'Teraz drugi punkt · ') + fmtM(ml) + ' w obecnej skali';
+        edgeLabels.push({ key: 'kal', x: (cl[0][0] + cl[1][0]) / 2 * sc, y: (cl[0][1] + cl[1][1]) / 2 * sc, text: fmtM(ml), bg: '#6A3A9C' });
+      }
+    }
+    var tip;
+    if (calibActive) tip = 'Kalibracja: kliknij dwa punkty na mapce o znanej odległości, wpisz ją po lewej i zastosuj.';
+    else if (moveActive) tip = 'Przeciągnij, aby przesunąć mapkę pod planem.';
+    else if (isPolyTool && s.mode === 'poly') tip = s.draft.length >= 3 ? 'Kliknij pierwszy (niebieski) punkt albo kliknij dwukrotnie, aby zamknąć kształt.' : 'Klikaj kolejne narożniki. Długość i kąt możesz też wpisać po lewej.';
+    else if (isPolyTool) tip = 'Przeciągnij, aby narysować prostokąt.';
+    else if (isPointTool) tip = 'Kliknij, aby posadzić. Narzędzie zostaje aktywne, możesz sadzić dalej.';
+    else if (sel) tip = 'Przeciągnij element, aby go przesunąć. Kwadratowe uchwyty przesuwają narożniki.';
+    else tip = 'Wybierz narzędzie po lewej. Kliknij element na planie, aby go edytować.';
+
+    var zi = ZOOMS.indexOf(sc);
+    var plotKeyW = 'plot:w', plotKeyH = 'plot:h';
+    function startVals() { return [parseNum(self.state.startX), parseNum(self.state.startY)]; }
+
+    return {
+      vb: '0 0 ' + s.W + ' ' + s.H, stageW: s.W * sc, stageH: s.H * sc, major: 5 * sc, minor: sc,
+      cursor: moveActive ? 'move' : calibActive ? 'crosshair' : s.tool === 'select' ? 'default' : 'crosshair',
+
+      noticeOn: !!s.msg, msg: s.msg, dlOn: !!s.dl, dlUrl: s.dl ? s.dl.url : '', dlName: s.dl ? s.dl.name : '',
+      closeNotice: function () { self.setState({ msg: '', dl: null }); },
+      onOpenFile: function (e) { self.openFile(e); }, saveFile: function () { self.saveFile(); }, exportPng: function () { self.exportPng(); },
+      onBgFile: function (e) { self.readImage(e); },
+      hasBg: !!bg, noBg: !bg, bgOn: !!(bg && bg.visible), bgSrc: bg ? bg.src : '',
+      bgL: bg ? bg.x * sc : 0, bgT: bg ? bg.y * sc : 0, bgWpx: bg ? bg.w * sc : 0, bgHpx: bg ? bg.w * bg.aspect * sc : 0, bgOp: bg ? bg.opacity : 1,
+      bgOpPct: bg ? Math.round(bg.opacity * 100) : 60,
+      onBgOp: function (e) { var v3 = Number(e.target.value) / 100; self.setState(function (st) { return st.bg ? { bg: Object.assign({}, st.bg, { opacity: v3 }) } : null; }); },
+      bgVisLabel: bg && !bg.visible ? 'Pokaż' : 'Ukryj',
+      toggleBgVis: function () { self.setState(function (st) { return st.bg ? { bg: Object.assign({}, st.bg, { visible: !st.bg.visible }) } : null; }); },
+      removeBg: function () { self.setState({ bg: null, bgMode: null, calib: [], msg: 'Mapka usunięta z planu.', dl: null }); },
+      bgWVal: bg ? this.ev('bg:w', bg.w) : '', bgXVal: bg ? this.ev('bg:x', bg.x) : '', bgYVal: bg ? this.ev('bg:y', bg.y) : '',
+      onBgW: this.mkEdit('bg:w', function (n) { if (n > 0) self.setState(function (st) { return st.bg ? { bg: Object.assign({}, st.bg, { w: n }) } : null; }); }),
+      onBgX: this.mkEdit('bg:x', function (n) { self.setState(function (st) { return st.bg ? { bg: Object.assign({}, st.bg, { x: n }) } : null; }); }),
+      onBgY: this.mkEdit('bg:y', function (n) { self.setState(function (st) { return st.bg ? { bg: Object.assign({}, st.bg, { y: n }) } : null; }); }),
+      blurBgW: this.mkBlur('bg:w'), blurBgX: this.mkBlur('bg:x'), blurBgY: this.mkBlur('bg:y'),
+      calibActive: calibActive, calibPressed: calibActive ? 'true' : 'false', calibBg: calibActive ? '#F3EEF8' : '#FFFFFF', calibBd: calibActive ? '#6A3A9C' : '#D9DED9',
+      movePressed: moveActive ? 'true' : 'false', moveBg: moveActive ? '#E3EFE5' : '#FFFFFF', moveBd: moveActive ? '#2F6B3F' : '#D9DED9',
+      startCalib: function () { self.drag = null; self.setState({ bgMode: self.state.bgMode === 'calib' ? null : 'calib', calib: [], tool: 'select', sel: null, draft: [] }); },
+      toggleMove: function () { self.drag = null; self.setState({ bgMode: self.state.bgMode === 'move' ? null : 'move', calib: [], tool: 'select', sel: null, draft: [] }); },
+      cancelBgMode: function () { self.setState({ bgMode: null, calib: [] }); },
+      calibInfo: calibInfo, calibLen: s.calibLen, onCalibLen: this.mkStr('calibLen'),
+      cantCalib: !(s.calib.length === 2 && parseNum(s.calibLen) > 0),
+      applyCalib: function () { self.applyCalib(); },
+      calibOverlayOn: !!calibPtsStr, calibPts: calibPtsStr,
+      polys: polys, bounds: bounds, points: points, labels: labels, edgeLabels: edgeLabels, handles: handles,
+      selPolyOn: selPolyOn, selPointOn: selPointOn, selPolyPts: selPolyPts, selC: selC,
+      overlayOn: !!(draftPts || rectPtsStr), draftPts: draftPts, rectPts: rectPtsStr,
+      ticksX: ticksX, ticksY: ticksY,
+      onDown: function (e) { self.onDown(e); }, onMove: function (e) { self.onMove(e); }, onUp: function (e) { self.onUp(e); },
+      onLeave: function () { self.onLeave(); }, onDbl: function (e) { self.onDbl(e); },
+      zoomIn: function () { var i = ZOOMS.indexOf(self.state.scale); self.setState({ scale: ZOOMS[Math.min(ZOOMS.length - 1, (i < 0 ? 4 : i) + 1)] }); },
+      zoomOut: function () { var i = ZOOMS.indexOf(self.state.scale); self.setState({ scale: ZOOMS[Math.max(0, (i < 0 ? 4 : i) - 1)] }); },
+      zoomLabel: '1 m = ' + sc + ' px', barW: barM * sc, barLabel: barM + ' m',
+      coords: s.hover ? 'X ' + fmtM(s.hover[0]) + '   Y ' + fmtM(s.hover[1]) : 'Najedź na plan',
+      tip: tip,
+
+      selectTool: { pick: function () { self.setTool('select'); }, bg: selOn ? '#E3EFE5' : '#FFFFFF', bd: selOn ? '#2F6B3F' : '#D9DED9', fw: selOn ? '600' : '400', pressed: selOn ? 'true' : 'false' },
+      areaTools: ORDER_POLY.map(toolBtn), plantTools: ORDER_PT.map(toolBtn),
+      isPolyTool: isPolyTool, isPointTool: isPointTool, toolLabel: s.tool === 'select' ? '' : T[s.tool].label,
+      modePoly: s.mode === 'poly', modeRect: s.mode === 'rect',
+      modePolyPick: function () { self.rectStart = null; self.setState({ mode: 'poly', rectOn: false }); },
+      modeRectPick: function () { self.setState({ mode: 'rect', draft: [] }); },
+      modePolyBg: s.mode === 'poly' ? '#E3EFE5' : '#FFFFFF', modePolyBd: s.mode === 'poly' ? '#2F6B3F' : '#D9DED9',
+      modeRectBg: s.mode === 'rect' ? '#E3EFE5' : '#FFFFFF', modeRectBd: s.mode === 'rect' ? '#2F6B3F' : '#D9DED9',
+      draftInfo: draftInfo, draftEmpty: s.draft.length === 0, draftHas: s.draft.length > 0, cantFinish: s.draft.length < 3,
+      startX: s.startX, startY: s.startY, segLen: s.segLen, segAng: s.segAng, rectW: s.rectW, rectH: s.rectH,
+      onStartX: this.mkStr('startX'), onStartY: this.mkStr('startY'), onSegLen: this.mkStr('segLen'), onSegAng: this.mkStr('segAng'),
+      onRectW: this.mkStr('rectW'), onRectH: this.mkStr('rectH'),
+      addStart: function () { var p = startVals(); if (isNaN(p[0]) || isNaN(p[1])) return; self.setState({ draft: [[r2(p[0]), r2(p[1])]] }); },
+      addSegment: function () {
+        var d = self.state.draft, len = parseNum(self.state.segLen), ang = parseNum(self.state.segAng);
+        if (!d.length || isNaN(len) || len <= 0 || isNaN(ang)) return;
+        var l = d[d.length - 1], rad = ang * Math.PI / 180;
+        self.setState({ draft: d.concat([[r2(l[0] + len * Math.cos(rad)), r2(l[1] - len * Math.sin(rad))]]) });
+      },
+      insertRect: function () {
+        var p = startVals(), w = parseNum(self.state.rectW), h = parseNum(self.state.rectH);
+        if (isNaN(p[0]) || isNaN(p[1]) || !(w > 0) || !(h > 0)) return;
+        self.addShape({ id: self.newId(), type: self.state.tool, pts: rectPts([r2(p[0]), r2(p[1])], [r2(p[0] + w), r2(p[1] + h)]) }, false);
+      },
+      finishDraft: function () { self.finishDraft(); },
+      popPoint: function () { self.setState({ draft: self.state.draft.slice(0, -1) }); },
+      cancelDraft: function () { self.setState({ draft: [] }); },
+
+      steps: steps, toggles: toggles,
+      plotW: this.ev(plotKeyW, s.W), plotH: this.ev(plotKeyH, s.H),
+      onPlotW: this.mkEdit(plotKeyW, function (n) { if (n >= 5 && n <= 500) self.setState({ W: n }); }),
+      onPlotH: this.mkEdit(plotKeyH, function (n) { if (n >= 5 && n <= 500) self.setState({ H: n }); }),
+      blurPlotW: this.mkBlur(plotKeyW), blurPlotH: this.mkBlur(plotKeyH),
+
+      undo: function () { self.undo(); }, noUndo: s.histLen === 0,
+      loadSample: function () { self.pushHist(); self.setState({ shapes: sample(), sel: null, draft: [], tool: 'select', W: 30, H: 22, edits: {} }); },
+      clearAll: function () { self.pushHist(); self.setState({ shapes: [], sel: null, draft: [], tool: 'boundary', mode: 'poly', edits: {} }); },
+
+      noSel: !sel, plotArea: plot ? fmtA(plot) : '—', pbc: pbc, summary: summary,
+      inspName: insp.name, inspType: insp.type, inspArea: insp.area, inspPerim: insp.perim, inspReserveOn: insp.reserveOn, inspReserve: insp.reserve,
+      onName: function (e) { var v2 = e.target.value; if (sel) self.updShape(sel.id, function (x) { return Object.assign({}, x, { name: v2 }); }); },
+      matOpts: matOpts, vertices: vertices, edges: edges,
+      ptX: ptX, ptY: ptY, ptD: ptD, onPtX: onPtX, onPtY: onPtY, onPtD: onPtD,
+      blurPtX: sel ? this.mkBlur(sel.id + ':x') : null, blurPtY: sel ? this.mkBlur(sel.id + ':y') : null, blurPtD: sel ? this.mkBlur(sel.id + ':d') : null,
+      pushHistFn: function () { self.pushHist(); },
+      deselect: function () { self.setState({ sel: null, edits: {} }); },
+      duplicate: function () {
+        var x = self.getSel(); if (!x) return;
+        var n = clone(x); n.id = self.newId();
+        if (n.pts) n.pts = n.pts.map(function (q) { return [r2(q[0] + 1), r2(q[1] + 1)]; }); else { n.x = r2(n.x + 1); n.y = r2(n.y + 1); }
+        self.addShape(n, true);
+        self.setState({ tool: 'select' });
+      },
+      remove: function () { var x = self.getSel(); if (!x) return; self.pushHist(); self.setState(function (st) { return { shapes: st.shapes.filter(function (y) { return y.id !== x.id; }), sel: null, edits: {} }; }); },
+      elements: elements, noElements: s.shapes.length === 0
+    };
+  }
+}
+</script>
+</body>
+</html>
