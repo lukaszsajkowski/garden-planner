@@ -1,0 +1,4 @@
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.main { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; padding: 16px; }
+.left { flex: 1 1 240px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.right { flex: 1 1 280px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; }
