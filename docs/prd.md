@@ -135,7 +135,7 @@ Gdy nic nie jest zaznaczone, prawa kolumna pokazuje podsumowanie.
 - **F-9.1 Zapisz plik:** `plan-ogrodu-RRRR-MM-DD.json` w formacie `{ app: "planer-ogrodu", version: 1, savedAt, W, H, shapes, bg }`. Pobieranie rusza samo, a pasek komunikatu ma dodatkowo link „Pobierz …”.
 - **F-9.2 Otwórz plik:** walidacja wg §5 specyfikacji technicznej. Sukces: „Wczytano „nazwa”: n elementów [i mapka].” Błąd: „Nie udało się wczytać pliku „nazwa”: powód.” Plan pozostaje wtedy bez zmian.
 - **F-9.3 Eksport PNG:** `plan-ogrodu-RRRR-MM-DD.png`. Skala S = clamp(floor(6000 / max(W,H)), 10, 60) px/m, margines 56 px. Na obrazie: siatka, opisy osi co 5 m, mapka (jeśli widoczna), obszary w kolorach jednolitych, rośliny, granica z wymiarami, etykiety, a w stopce „Plan ogrodu · działka X m² · data” i podziałka 5 m.
-- **F-9.4 Autozapis** W, H, shapes i bg do localStorage (`planer-ogrodu-v1`) po każdej zmianie. Gdy brakuje miejsca, zapis idzie bez mapki. Przy starcie plan jest odtwarzany z autozapisu, a gdy go brak, ładowany jest przykładowy plan.
+- **F-9.4 Autozapis** W, H, shapes i bg do localStorage (`planer-ogrodu-v1`) po każdej zmianie. Gdy brakuje miejsca, zapis idzie bez mapki, a pasek komunikatu raz o tym informuje i podpowiada „Zapisz plik” (ostrzeżenie dopisuje się do bieżącego komunikatu). Tak samo, gdy nie mieści się nawet plan bez mapki. Przy starcie plan jest odtwarzany z autozapisu, a gdy go brak, ładowany jest przykładowy plan.
 - **F-9.5** „Przykładowy plan” wczytuje plan referencyjny (§6.8) i ustawia obszar 30 × 22. „Nowy plan” czyści elementy i włącza narzędzie „Granica działki” w trybie wielokąta. Mapka i rozmiar obszaru zostają.
 
 ### 6.10 Komunikaty i podpowiedzi
@@ -155,4 +155,4 @@ Gdy nic nie jest zaznaczone, prawa kolumna pokazuje podsumowanie.
 ## 8. Ryzyka i otwarte kwestie
 
 - Raster 0,2 m daje błąd przy wąskich pasach (np. ścieżka 0,3 m). To świadoma zgodność z prototypem. Dokładne operacje na wielokątach to temat na później.
-- Mapka w data URL powiększa plik JSON i może przepełnić localStorage. Mamy fallback (zapis bez mapki), ale użytkownik nie jest o tym informowany, tak jak w prototypie.
+- Mapka w data URL powiększa plik JSON i może przepełnić localStorage. Mamy fallback (zapis bez mapki) i komunikat dla użytkownika (F-9.4).

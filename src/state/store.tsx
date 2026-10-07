@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useRef, type Dispatch, type ReactNode } from 'react';
 import { samplePlan } from '../domain/sample';
-import { getStorage, loadSaved, savePlan } from './persistence';
+import { getStorage, loadSaved, savePlan, saveWarning, type SaveResult } from './persistence';
 import { rootReducer, type AppAction, type AppState } from './rootReducer';
 import { initialUi } from './uiReducer';
 
@@ -18,9 +18,17 @@ export function AppProvider({ children, initial }: { children: ReactNode; initia
   const [state, dispatch] = useReducer(rootReducer, initial, (i: AppState | undefined) => i ?? initAppState(getStorage()));
   const plan = state.doc.plan;
   const latest = useRef(plan);
+  const lastResult = useRef<SaveResult>('saved');
   useEffect(() => {
     latest.current = plan;
-    const t = setTimeout(() => savePlan(getStorage(), plan), AUTOSAVE_DELAY_MS);
+    const t = setTimeout(() => {
+      const r = savePlan(getStorage(), plan);
+      // Ostrzegamy raz przy zmianie wyniku, nie przy każdym zapisie z tym samym problemem.
+      const warning = r !== lastResult.current ? saveWarning(r) : null;
+      lastResult.current = r;
+      // Dopisujemy do bieżącego komunikatu, bo zwykle jest nim „Mapka wczytana…” z ważną instrukcją.
+      if (warning) dispatch({ type: 'ui/appendNotice', msg: warning });
+    }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(t);
   }, [plan]);
   useEffect(() => {

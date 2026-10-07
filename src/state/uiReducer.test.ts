@@ -60,4 +60,9 @@ describe('uiReducer', () => {
     expect(s.calibLen).toBe('10');
     expect(s.notice).toEqual({ msg: 'ok' });
   });
+  it('appendNotice adds to the current message or starts a new one', () => {
+    expect(uiReducer(ui(), { type: 'ui/appendNotice', msg: 'B.' }).notice).toEqual({ msg: 'B.' });
+    const dl = { url: 'blob:x', name: 'p.json' };
+    expect(uiReducer(ui({ notice: { msg: 'A.', download: dl } }), { type: 'ui/appendNotice', msg: 'B.' }).notice).toEqual({ msg: 'A. B.', download: dl });
+  });
 });

@@ -56,3 +56,80 @@ describe('AppProvider', () => {
     expect(savedW()).toBe(31);
   });
 });
+
+describe('AppProvider: brak miejsca w localStorage', () => {
+  const bg = { src: 'data:image/png;base64,' + 'A'.repeat(5000), x: 0, y: 0, w: 10, aspect: 1, opacity: 0.6, visible: true };
+
+  function NoticeText() {
+    const s = useAppState();
+    return <p data-testid="notice">{s.ui.notice?.msg ?? ''}</p>;
+  }
+  function Controls() {
+    const s = useAppState();
+    const dispatch = useAppDispatch();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'plan/setBackground', bg })}>mapka</button>
+        <button onClick={() => dispatch({ type: 'plan/setBackground', bg: null })}>bez mapki</button>
+        <button onClick={() => dispatch({ type: 'plan/setPlotSize', W: s.doc.plan.W + 1 })}>szerzej</button>
+        <button onClick={() => dispatch({ type: 'ui/notify', notice: null })}>zamknij</button>
+      </>
+    );
+  }
+
+  let original: Storage['setItem'];
+  beforeEach(() => {
+    vi.useFakeTimers();
+    original = Storage.prototype.setItem;
+    // Plan bez mapki się mieści, z mapką nie.
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, k: string, v: string) {
+      if (v.length > 4000) throw new DOMException('full', 'QuotaExceededError');
+      original.call(this, k, v);
+    });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  const click = (name: string) => {
+    fireEvent.click(screen.getByRole('button', { name }));
+    act(() => vi.advanceTimersByTime(AUTOSAVE_DELAY_MS));
+  };
+  const notice = () => screen.getByTestId('notice').textContent;
+
+  it('tells once that the map is not autosaved, and again after it fits and overflows anew', () => {
+    render(<AppProvider><Controls /><NoticeText /></AppProvider>);
+    act(() => vi.advanceTimersByTime(AUTOSAVE_DELAY_MS));
+    expect(notice()).toBe('');
+
+    click('mapka');
+    expect(notice()).toMatch(/Mapka nie mieści się w pamięci przeglądarki/);
+    click('zamknij');
+    click('szerzej');
+    expect(notice()).toBe('');
+
+    click('bez mapki');
+    click('mapka');
+    expect(notice()).toMatch(/Mapka nie mieści się/);
+  });
+
+  it('keeps the current message and appends the warning to it', () => {
+    function NotifyThenMap() {
+      const dispatch = useAppDispatch();
+      return (
+        <button onClick={() => { dispatch({ type: 'ui/notify', notice: { msg: 'Mapka wczytana.' } }); dispatch({ type: 'plan/setBackground', bg }); }}>wczytaj</button>
+      );
+    }
+    render(<AppProvider><NotifyThenMap /><NoticeText /></AppProvider>);
+    click('wczytaj');
+    expect(notice()).toMatch(/^Mapka wczytana\. Mapka nie mieści się/);
+  });
+
+  it('warns when even the plan without the map does not fit', () => {
+    vi.mocked(Storage.prototype.setItem).mockImplementation(() => { throw new DOMException('full', 'QuotaExceededError'); });
+    render(<AppProvider><NoticeText /></AppProvider>);
+    act(() => vi.advanceTimersByTime(AUTOSAVE_DELAY_MS));
+    expect(notice()).toMatch(/Plan nie mieści się w pamięci przeglądarki/);
+  });
+});

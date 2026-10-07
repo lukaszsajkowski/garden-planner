@@ -51,7 +51,8 @@ export type UiAction =
   | { type: 'ui/calibClick'; pt: Pt }
   | { type: 'ui/setCalibLen'; value: string }
   | { type: 'ui/setDrawInput'; key: DrawInputKey; value: string }
-  | { type: 'ui/notify'; notice: Notice | null };
+  | { type: 'ui/notify'; notice: Notice | null }
+  | { type: 'ui/appendNotice'; msg: string };
 
 export function uiReducer(s: UiState, a: UiAction): UiState {
   switch (a.type) {
@@ -99,5 +100,7 @@ export function uiReducer(s: UiState, a: UiAction): UiState {
       return { ...s, drawInputs: { ...s.drawInputs, [a.key]: a.value } };
     case 'ui/notify':
       return { ...s, notice: a.notice };
+    case 'ui/appendNotice':
+      return { ...s, notice: s.notice ? { ...s.notice, msg: `${s.notice.msg} ${a.msg}` } : { msg: a.msg } };
   }
 }
