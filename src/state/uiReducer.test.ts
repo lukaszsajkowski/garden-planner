@@ -48,6 +48,10 @@ describe('uiReducer', () => {
   it('pickElement selects and switches to select tool', () => {
     expect(uiReducer(ui({ tool: 'tree', draft: [[0, 0]] }), { type: 'ui/pickElement', id: 'x' })).toMatchObject({ sel: 'x', tool: 'select', draft: [] });
   });
+  it('pickElement leaves background calibration and move modes', () => {
+    expect(uiReducer(ui({ bgMode: 'calib', calib: [[1, 1]] }), { type: 'ui/pickElement', id: 'x' })).toMatchObject({ sel: 'x', bgMode: null, calib: [] });
+    expect(uiReducer(ui({ bgMode: 'move' }), { type: 'ui/pickElement', id: 'x' }).bgMode).toBeNull();
+  });
   it('setDrawInput, setCalibLen, notify', () => {
     let s = uiReducer(ui(), { type: 'ui/setDrawInput', key: 'segLen', value: '3,5' });
     s = uiReducer(s, { type: 'ui/setCalibLen', value: '10' });

@@ -72,7 +72,7 @@ export function uiReducer(s: UiState, a: UiAction): UiState {
     case 'ui/select':
       return { ...s, sel: a.id };
     case 'ui/pickElement':
-      return { ...s, sel: a.id, tool: 'select', draft: [], rectStart: null };
+      return { ...s, sel: a.id, tool: 'select', draft: [], rectStart: null, bgMode: null, calib: [] };
     case 'ui/zoom': {
       const i = ZOOMS.indexOf(s.scale);
       const next = Math.max(0, Math.min(ZOOMS.length - 1, (i < 0 ? 4 : i) + a.dir));
