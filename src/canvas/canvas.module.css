@@ -1,0 +1,43 @@
+.stage {
+  position: relative; touch-action: none; user-select: none;
+  background-color: var(--color-stage);
+  background-image:
+    linear-gradient(to right, var(--color-grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--color-grid-minor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid-minor) 1px, transparent 1px);
+  box-shadow: 0 0 0 1px var(--color-stage-ring);
+}
+.layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.bgImg { position: absolute; max-width: none; pointer-events: none; user-select: none; }
+.tickX, .tickY { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-muted); pointer-events: none; }
+.tickX { top: -22px; transform: translateX(-50%); }
+.tickY { left: -40px; width: 34px; text-align: right; transform: translateY(-50%); }
+.label { position: absolute; padding: 2px 6px; border-radius: 4px; background: var(--color-label-bg); text-align: center; white-space: nowrap; line-height: 1.25; pointer-events: none; }
+.labelCenter { transform: translate(-50%, -50%); }
+.labelCorner { transform: translate(4px, calc(-100% - 4px)); }
+.labelTitle { font-size: 12px; font-weight: 600; color: var(--color-text); }
+.labelSub { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); }
+.edge { position: absolute; transform: translate(-50%, -50%); padding: 1px 5px; border-radius: 3px; color: var(--color-on-accent); font-family: var(--font-mono); font-size: 11px; white-space: nowrap; pointer-events: none; }
+.toneBoundary { background: var(--color-danger); }
+.toneSelection { background: var(--color-selection); }
+.toneDraft { background: var(--color-draft); }
+.toneCalib { background: var(--color-calib); }
+.handle { position: absolute; transform: translate(-50%, -50%); border: 2px solid; pointer-events: none; }
+.hVertex { width: 12px; height: 12px; background: var(--color-surface); border-color: var(--color-selection); border-radius: 2px; }
+.hPointCenter { width: 10px; height: 10px; background: var(--color-selection); border-color: var(--color-surface); border-radius: 50%; }
+.hDraft { width: 10px; height: 10px; background: var(--color-surface); border-color: var(--color-draft); border-radius: 50%; }
+.hDraftFirst { width: 14px; height: 14px; background: var(--color-surface); border-color: var(--color-draft); border-radius: 50%; }
+.hDraftClosable { width: 14px; height: 14px; background: var(--color-draft); border-color: var(--color-draft); border-radius: 50%; }
+.hCalib { width: 12px; height: 12px; background: var(--color-calib); border-color: var(--color-surface); border-radius: 50%; }
+
+.view { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-xl); background: var(--color-surface); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--color-border); }
+.zoom { display: flex; align-items: center; gap: 4px; }
+.zoomLabel { min-width: 76px; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); }
+.scaleBar { display: flex; flex-direction: column; gap: 2px; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); }
+.bar { height: 6px; border: 1.5px solid var(--color-text); border-top: 0; }
+.coords { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); white-space: pre; }
+.well { height: 640px; overflow: auto; background: var(--color-stage-well); }
+.pad { width: max-content; padding: 34px 32px 32px 46px; }
+.tip { margin: 0; padding: 10px 12px; border-top: 1px solid var(--color-border); font-size: 13px; color: var(--color-text-secondary); }
