@@ -1,0 +1,10 @@
+.header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.title { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.subtitle { margin: 0; font-size: 13px; color: var(--color-text-muted); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sep { width: 1px; height: 28px; background: var(--color-border); }
+.notice { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 16px 0; padding: 10px 14px; border: 1px solid var(--color-notice-border); border-radius: var(--radius-xl); background: var(--color-notice); font-size: 14px; color: var(--color-text); }
+.noticeMsg { flex: 1 1 260px; }
+.noticeLink { color: var(--color-on-accent); }
+.noticeLink:hover { color: var(--color-on-accent); }
