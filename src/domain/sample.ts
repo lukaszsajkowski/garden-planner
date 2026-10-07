@@ -1,0 +1,26 @@
+import type { Plan } from './types';
+
+export function samplePlan(): Plan {
+  return {
+    W: 30,
+    H: 22,
+    bg: null,
+    shapes: [
+      { id: 'b1', type: 'boundary', pts: [[1, 1.5], [27.5, 1], [28, 20.5], [1, 20]] },
+      { id: 'g1', type: 'grass', pts: [[1, 1.5], [27.5, 1], [28, 20.5], [1, 20]] },
+      { id: 'p1', type: 'paving', name: 'Podjazd', pts: [[17, 1.2], [21, 1.12], [21, 8], [17, 8]] },
+      { id: 'p2', type: 'paving', name: 'Taras', pts: [[8, 12], [14, 12], [14, 15.5], [8, 15.5]] },
+      { id: 'v1', type: 'gravel', name: 'Ścieżka', pts: [[14, 14], [20, 14], [20, 15], [14, 15]] },
+      { id: 'h1', type: 'house', name: 'Dom', pts: [[6, 4], [17, 4], [17, 12], [6, 12]] },
+      { id: 'd1', type: 'bed', name: 'Rabata bylinowa', pts: [[20, 15.5], [26.8, 15.5], [26.9, 19.6], [20, 19.6]] },
+      { id: 't1', type: 'tree', name: 'Klon', x: 4.5, y: 16, r: 2.8 },
+      { id: 't2', type: 'tree', name: 'Jabłoń', x: 24, y: 7, r: 2.2 },
+      { id: 'c1', type: 'conifer', x: 2.4, y: 4, r: 1 },
+      { id: 'c2', type: 'conifer', x: 2.4, y: 6.5, r: 1 },
+      { id: 'c3', type: 'conifer', x: 2.4, y: 9, r: 1 },
+      { id: 's1', type: 'shrub', x: 18.5, y: 12.6, r: 0.6 },
+      { id: 's2', type: 'shrub', x: 20, y: 12.9, r: 0.6 },
+      { id: 's3', type: 'shrub', x: 21.5, y: 12.5, r: 0.6 },
+    ],
+  };
+}
