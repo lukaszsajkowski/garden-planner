@@ -1,5 +1,5 @@
 import { samplePlan } from '../domain/sample';
-import { drawPlan, exportScale } from './exportPng';
+import { drawPlan, exportScale, renderPlanPng } from './exportPng';
 
 function fakeCtx() {
   const texts: string[] = [];
@@ -43,5 +43,37 @@ describe('drawPlan', () => {
     const { ctx, texts } = fakeCtx();
     drawPlan(ctx, { W: 10, H: 10, shapes: [], bg: null }, null, 60, 712, 742, '2026-10-05');
     expect(texts).toContain('Plan ogrodu · 2026-10-05');
+  });
+});
+
+describe('renderPlanPng', () => {
+  it('waits for document.fonts before rendering', async () => {
+    let fontLoaded = false;
+    const originalFonts = (document as unknown as Record<string, unknown>).fonts;
+    const originalGetContext = HTMLCanvasElement.prototype.getContext;
+    const originalToBlob = HTMLCanvasElement.prototype.toBlob;
+    try {
+      (document as unknown as Record<string, unknown>).fonts = {
+        load: async () => {},
+        ready: new Promise<void>((resolve) => {
+          setTimeout(() => {
+            fontLoaded = true;
+            resolve();
+          }, 10);
+        }),
+      };
+      HTMLCanvasElement.prototype.getContext = (() => fakeCtx().ctx) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
+        expect(fontLoaded).toBe(true);
+        cb(new Blob(['fake'], { type: 'image/png' }));
+      };
+
+      const blob = await renderPlanPng({ W: 10, H: 10, shapes: [], bg: null });
+      expect(blob).toBeInstanceOf(Blob);
+    } finally {
+      (document as unknown as Record<string, unknown>).fonts = originalFonts;
+      HTMLCanvasElement.prototype.getContext = originalGetContext;
+      HTMLCanvasElement.prototype.toBlob = originalToBlob;
+    }
   });
 });
