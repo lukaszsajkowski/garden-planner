@@ -5,6 +5,6 @@ const PORT = 5317;
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  use: { baseURL: `http://localhost:${PORT}`, viewport: { width: 1440, height: 1000 }, browserName: 'chromium' },
-  webServer: { command: `npx vite --port ${PORT} --strictPort`, url: `http://localhost:${PORT}`, reuseExistingServer: !process.env.CI },
+  use: { baseURL: `http://localhost:${PORT}/garden-planner/`, viewport: { width: 1440, height: 1000 }, browserName: 'chromium' },
+  webServer: { command: `npm run build && npm run preview -- --port ${PORT} --strictPort`, url: `http://localhost:${PORT}/garden-planner/`, reuseExistingServer: false },
 });
