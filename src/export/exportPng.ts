@@ -65,7 +65,7 @@ export function drawPlan(g: CanvasRenderingContext2D, plan: Plan, img: HTMLImage
     g.stroke();
   }
   g.fillStyle = color('textMuted');
-  g.font = '11px monospace';
+  g.font = "11px 'IBM Plex Mono', monospace";
   g.textAlign = 'center';
   g.textBaseline = 'bottom';
   for (let x = 0; x <= W; x += 5) g.fillText(String(x), x * S, -6);
@@ -119,7 +119,7 @@ export function drawPlan(g: CanvasRenderingContext2D, plan: Plan, img: HTMLImage
     for (let i = 0; i < sh.pts.length; i++) {
       const a = sh.pts[i], b = sh.pts[(i + 1) % sh.pts.length], len = dist(a, b);
       if (len * S < canvasTokens.edgeLabelMinPx) continue;
-      g.font = '11px monospace';
+      g.font = "11px 'IBM Plex Mono', monospace";
       const txt = fmtLen(len), w = g.measureText(txt).width + 10;
       const mx = ((a[0] + b[0]) / 2) * S, my = ((a[1] + b[1]) / 2) * S;
       g.fillStyle = color('danger');
@@ -176,6 +176,19 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
 }
 
 export async function renderPlanPng(plan: Plan): Promise<Blob> {
+  if (typeof document !== 'undefined' && 'fonts' in document && document.fonts) {
+    try {
+      await Promise.all([
+        document.fonts.load(exportTokens.fontLabel),
+        document.fonts.load(exportTokens.fontSub),
+        document.fonts.load(exportTokens.fontFooter),
+        document.fonts.load("11px 'IBM Plex Mono', monospace"),
+        document.fonts.ready,
+      ]);
+    } catch {
+      // Ignoruj błędy ładowania czcionek i rysuj z czcionkami zapasowymi
+    }
+  }
   const S = exportScale(plan.W, plan.H), pad = exportTokens.margin;
   const c = document.createElement('canvas');
   c.width = Math.round(plan.W * S) + pad * 2;
