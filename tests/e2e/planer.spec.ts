@@ -14,7 +14,20 @@ async function clickAt(page: Page, x: number, y: number) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
+});
+
+test('autozapis odtwarza plan po odświeżeniu', async ({ page }) => {
+  await page.getByRole('button', { name: 'Nowy plan' }).click();
+  const list = page.getByRole('region', { name: 'Elementy planu' });
+  await expect(list.getByText('Plan jest pusty.', { exact: false })).toBeVisible();
+  // Czekamy na zapis przed reloadem, aby pagehide nie maskowało błędu timera.
+  await expect.poll(() => page.evaluate(() => {
+    const saved = localStorage.getItem('planer-ogrodu-v1');
+    return saved ? JSON.parse(saved).shapes.length : null;
+  })).toBe(0);
+  await page.reload();
+  await expect(list.getByText('Plan jest pusty.', { exact: false })).toBeVisible();
 });
 
 test('rysowanie granicy działki kliknięciami', async ({ page }) => {
